@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .delete-card {
+        max-width: 500px;
+        margin: 2rem auto;
+    }
+    .delete-card .card-header {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>
+
+<div class="container">
+    <div class="card delete-card">
+        <div class="card-header">
+            <h4 class="mb-0">Confirmar Eliminación</h4>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">¿Está seguro que desea eliminar el grupo "{{ object.nombre }}"?</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="buttons">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash mr-2"></i>Eliminar
+                    </button>
+                    <a href="{% url 'grupo-list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+    }
+
+    .page-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 2em;
+        font-weight: 400;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px;
+    }
+
+    .card-title {
+        color: #003366;
+        margin: 0;
+        font-size: 1.5em;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 500;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0,0,0,.02);
+    }
+
+    .actions-column {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 3px;
+        margin-left: 5px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Registro de Departamentos</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="card-title">Listado de Departamentos</h2>
+            <a href="{% url 'agregar_departamento' %}" class="btn btn-primary">Registrar Nuevo Departamento</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblDepartamentos" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gerencia</th>
+                            <th>Código</th>
+                            <th>Nombre del Departamento</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for departamento in departamentos %}
+                        <tr>
+                            <td>{{ departamento.id_departamentos }}</td>
+                            <td>{{ departamento.UnidadOrganizacional.nombre }}</td>
+                            <td>{{ departamento.codigo_departamento }}</td>
+                            <td>{{ departamento.nombre_departamento }}</td>
+                            <td>{{ departamento.descripcion|truncatechars:50 }}</td>
+                            <td class="actions-column">
+                                <a href="{% url 'editar_departamento' departamento.id_departamentos %}" class="btn btn-sm btn-info">Editar</a>
+                            </td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .page-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .page-title {
+        font-size: 2rem;
+        margin: 0;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        color: #003366;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .table thead th {
+        background-color: #003366;
+        color: white;
+        font-weight: 500;
+        padding: 12px;
+        border-bottom: none;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-trash-alt"></i>
+            Bienes Desincorporados
+        </h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if bienes_desincorporados %}
+                <div class="table-responsive">
+                    <table id="bienesTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre del Bien</th>
+                                <th>Fecha de Desincorporación</th>
+                                <th>Responsable</th>
+                                <th>Valor (Bs)</th>
+                                <th>Motivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in bienes_desincorporados %}
+                            <tr>
+                                <td>{{ item.bien.numero_de_identificacion }}</td>
+                                <td>{{ item.bien.nombre }}</td>
+                                <td>{{ item.fecha_desincorporacion|date:"d/m/Y H:i" }}</td>
+                                <td>{{ item.usuario_responsable.nombres }} {{ item.usuario_responsable.apellidos }}</td>
+                                <td>{{ item.valor_desincorporacion|default:"N/A" }}</td>
+                                <td>{{ item.motivo|truncatechars:50 }}</td>
+                                <td>
+                                    <a href="{% url 'historial_bien' item.bien.id_bienes %}" 
+                                       class="btn btn-info btn-sm"
+                                       title="Ver historial completo">
+                                        <i class="fas fa-history"></i> Historial
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No hay bienes desincorporados registrados.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#bienesTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        },
+        responsive: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excel',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                }
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                }
+            }
+        ],
+        order: [[2, 'desc']], // Ordenar por fecha de desincorporación
+        columnDefs: [
+            {
+                targets: -1, // Última columna (acciones)
+                orderable: false,
+                searchable: false
+            }
+        ]
+    });
+});
+</script>
+{% endblock %}

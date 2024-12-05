@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-container {
+        padding: 2rem;
+        background-color: #f0f2f5;
+        min-height: calc(100vh - 100px);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        border: none;
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: white;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.5rem;
+    }
+
+    .form-card-title {
+        color: #2c3e50;
+        font-size: 1.3rem;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .form-card-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 2px rgba(0,51,102,0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-field {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .error-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .field-info {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.3rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #2c3e50;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stock-fields {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stock-fields-title {
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1rem;
+        }
+
+        .form-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-box-open me-2"></i>
+            {{ titulo }}
+        </h1>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card-header">
+            <h3 class="form-card-title">
+                <i class="fas fa-edit me-2"></i>
+                Información del Tipo de Bien
+            </h3>
+        </div>
+        <div class="form-card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-field">
+                    <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Nombre del Tipo de Bien
+                    </label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                        <div class="error-feedback">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.nombre.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="field-info">Ingrese un nombre descriptivo y único para el tipo de bien.</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                        <i class="fas fa-align-left"></i>
+                        Descripción
+                    </label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="error-feedback">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.descripcion.errors }}
+                        </div>
+                    {% endif %}
+                    <div class="field-info">Proporcione una descripción detallada del tipo de bien.</div>
+                </div>
+
+                <div class="stock-fields">
+                    <h4 class="stock-fields-title">
+                        <i class="fas fa-chart-line"></i>
+                        Configuración de Stock
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-field">
+                                <label for="{{ form.stock_minimo.id_for_label }}" class="form-label">
+                                    <i class="fas fa-arrow-down"></i>
+                                    Stock Mínimo
+                                </label>
+                                {{ form.stock_minimo }}
+                                {% if form.stock_minimo.errors %}
+                                    <div class="error-feedback">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        {{ form.stock_minimo.errors }}
+                                    </div>
+                                {% endif %}
+                                <div class="field-info">Cantidad mínima requerida en inventario.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-field">
+                                <label for="{{ form.stock_maximo.id_for_label }}" class="form-label">
+                                    <i class="fas fa-arrow-up"></i>
+                                    Stock Máximo
+                                </label>
+                                {{ form.stock_maximo }}
+                                {% if form.stock_maximo.errors %}
+                                    <div class="error-feedback">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        {{ form.stock_maximo.errors }}
+                                    </div>
+                                {% endif %}
+                                <div class="field-info">Cantidad máxima permitida en inventario.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'inventario_por_tipo' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Agregar clases de Bootstrap a los campos del formulario
+    $('input, textarea').addClass('form-control');
+    
+    const $stockMin = $('#{{ form.stock_minimo.id_for_label }}');
+    const $stockMax = $('#{{ form.stock_maximo.id_for_label }}');
+    
+    // Función de validación
+    function validateStockLevels() {
+        const stockMin = parseInt($stockMin.val()) || 0;
+        const stockMax = parseInt($stockMax.val()) || 0;
+        
+        // Remover mensajes de error previos
+        $('.stock-error-feedback').remove();
+        $stockMin.removeClass('is-invalid');
+        $stockMax.removeClass('is-invalid');
+        
+        // Validar que los valores sean positivos
+        if (stockMin < 0) {
+            $stockMin.addClass('is-invalid');
+            $stockMin.after('<div class="invalid-feedback stock-error-feedback">El stock mínimo no puede ser negativo</div>');
+            return false;
+        }
+        
+        if (stockMax < 0) {
+            $stockMax.addClass('is-invalid');
+            $stockMax.after('<div class="invalid-feedback stock-error-feedback">El stock máximo no puede ser negativo</div>');
+            return false;
+        }
+        
+        // Validar que máximo sea mayor que mínimo
+        if (stockMax < stockMin && stockMax !== 0) {
+            $stockMax.addClass('is-invalid');
+            $stockMax.after('<div class="invalid-feedback stock-error-feedback">El stock máximo debe ser mayor que el stock mínimo</div>');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Validar en cambios de ambos campos
+    $stockMin.on('input', validateStockLevels);
+    $stockMax.on('input', validateStockLevels);
+    
+    // Validar antes de enviar el formulario
+    $('form').on('submit', function(e) {
+        if (!validateStockLevels()) {
+            e.preventDefault();
+            // Mostrar mensaje de error general
+            if (!$('.alert-danger').length) {
+                $(this).prepend(`
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Por favor, corrija los errores en los campos de stock.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

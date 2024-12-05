@@ -1,0 +1,37 @@
+<!-- templates/tipos_de_solicitud_list.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Tipos de Solicitudes</title>
+</head>
+<body>
+    <h1>Tipos de Solicitudes</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+                <tr>
+                    <td>{{ solicitud.id_tipos_de_solicitud }}</td>
+                    <td>{{ solicitud.nombre }}</td>
+                    <td>{{ solicitud.descripcion }}</td>
+                    <td>
+                        <a href="{% url 'tipos-de-solicitud-delete' solicitud.id_tipos_de_solicitud %}">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No hay tipos de solicitudes disponibles.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% for stock in stocks %}
+<tr>
+    <td>{{ stock.bien_id.nombre }}</td>
+    <td>{{ stock.bien_id.id_categoria.nombre_categoria }}</td>
+    <td>{{ stock.cantidad_total }}</td>
+    <td>{{ stock.cantidad_disponible }}</td>
+    <td>{{ stock.cantidad_asignada }}</td>
+    <td>{{ stock.cantidad_prestada }}</td>
+    <td>{{ stock.cantidad_en_mantenimiento }}</td>
+    <td>{{ stock.cantidad_desincorporada }}</td>
+    <td>{{ stock.cantidad_resguardada }}</td>
+    <td class="actions-column">
+        <a href="{% url 'stock_detail' stock.id_stock %}" class="btn btn-sm btn-info">Ver Detalles</a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="10">No hay registros de stock disponibles.</td>
+</tr>
+{% endfor %}

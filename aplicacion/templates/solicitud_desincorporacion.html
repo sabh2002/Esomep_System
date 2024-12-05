@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Contenedor principal */
+    .container {
+        max-width: 900px;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 40px;
+    }
+
+    /* Títulos */
+    h2 {
+        font-size: 2rem;
+        color: #003366;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    /* Estilos del formulario */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-size: 1.1rem;
+        color: #003366;
+        font-weight: 600;
+    }
+
+    input[type="text"], textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25);
+        outline: none;
+    }
+
+    /* Mensajes de error */
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 4px;
+    }
+
+    /* Botones */
+    .btn-primary {
+        background-color: #003366;
+        color: #ffffff;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 4px;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+    }
+
+    .btn:focus {
+        outline: none;
+    }
+    
+    .modal-success {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content-success {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        position: relative;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .success-icon {
+        color: #28a745;
+        font-size: 60px;
+        margin-bottom: 20px;
+    }
+
+    .modal-title {
+        color: #003366;
+        font-size: 24px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .modal-message {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .btn-continuar {
+        background-color: #003366;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.3s;
+    }
+
+    .btn-continuar:hover {
+        background-color: #002244;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2>Solicitud de Desincorporación</h2>
+    <hr>
+    <form method="post" id="solicitudForm">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <div class="alert alert-danger">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary" id="submitButton">
+                Enviar Solicitud
+            </button>
+            <a href="{% url 'lista_solicitudes' %}" class="btn btn-secondary ms-2">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de Éxito -->
+<div id="modalExito" class="modal-success">
+    <div class="modal-content-success">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">¡Solicitud Enviada!</h3>
+        <p class="modal-message">Tu solicitud de desincorporación ha sido enviada con éxito. Se te notificará cuando sea procesada.</p>
+        <button class="btn-continuar" onclick="window.location.href='{% url 'lista_solicitudes' %}'">
+            Continuar
+        </button>
+    </div>
+</div>
+
+<!-- Spinner de carga -->
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #003366;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('solicitudForm');
+    const modal = document.getElementById('modalExito');
+    const submitButton = document.getElementById('submitButton');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showLoading() {
+        loadingOverlay.style.display = 'flex';
+        submitButton.disabled = true;
+    }
+
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+        submitButton.disabled = false;
+    }
+
+    function redirectToListaSolicitudes() {
+        window.location.href = "{% url 'lista_solicitudes' %}";
+    }
+
+    function showSuccessModal() {
+        modal.style.display = 'flex';
+        setTimeout(redirectToListaSolicitudes, 2000); // Redirige después de 2 segundos
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        showLoading();
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok && !response.redirected) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Error en el servidor');
+                });
+            }
+            
+            // Si la respuesta es exitosa o es una redirección, mostrar el modal
+            hideLoading();
+            showSuccessModal();
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert(error.message || 'Hubo un error al enviar la solicitud');
+        });
+    });
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            redirectToListaSolicitudes();
+        }
+    });
+});
+</script>
+{% endblock %}

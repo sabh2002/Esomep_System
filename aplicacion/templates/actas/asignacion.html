@@ -1,0 +1,62 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE ASIGNACIÓN DE BIEN MUEBLE</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_actual }}, se procede a realizar la asignación del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr><th>Número de Identificación</th><td>{{ bien.numero_de_identificacion }}</td></tr>
+        <tr><th>Nombre del Bien</th><td>{{ bien.nombre }}</td></tr>
+        {% if departamento_destino %}
+            <tr><th>Departamento Destino</th><td>{{ departamento_destino.nombre_departamento }}</td></tr>
+        {% endif %}
+        {% if UnidadOrganizacional_destino %}
+            <tr><th>Unidad Organizacional Destino</th><td>{{ UnidadOrganizacional_destino.nombre }}</td></tr>
+        {% endif %}
+        <tr><th>Cantidad</th><td>{{ cantidad_afectada }}</td></tr>
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN GENERAL:</h3>
+        <p>{{ descripcion }}</p>
+    
+        {% if detalles.motivo_asignacion %}
+        <h3>MOTIVO DE ASIGNACIÓN:</h3>
+        <p>{{ detalles.motivo_asignacion }}</p>
+        {% endif %}
+    </div>
+    
+    <p>A partir de esta fecha, el bien queda bajo la responsabilidad de la entidad asignada.</p>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>DEPARTAMENTO DE BIENES</p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>
+        {% if departamento_destino %}
+            {{ departamento_destino.nombre_departamento }}
+        {% elif UnidadOrganizacional_destino %}
+            {{ UnidadOrganizacional_destino.nombre }}
+        {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+{% endblock %}

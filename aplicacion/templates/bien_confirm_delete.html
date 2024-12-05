@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .delete-card {
+        max-width: 500px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .delete-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px 8px 0 0;
+    }
+    .delete-body {
+        padding: 1.5rem;
+    }
+    .delete-info {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .warning-text {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .time-remaining {
+        color: #0056b3;
+        font-weight: bold;
+    }
+    .time-unit {
+        background: #e9ecef;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        margin: 0 0.25rem;
+        display: inline-block;
+        min-width: 2.5rem;
+        text-align: center;
+    }
+    .countdown-container {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+        text-align: center;
+    }
+</style>
+
+<div class="delete-card">
+    <div class="delete-header">
+        <h4 class="mb-0">Confirmar Eliminación</h4>
+    </div>
+    <div class="delete-body">
+        <div class="delete-info">
+            <p><strong>Bien a eliminar:</strong> {{ object.nombre }}</p>
+            <p><strong>Número de identificación:</strong> {{ object.numero_de_identificacion }}</p>
+            <p><strong>Fecha de registro:</strong> {{ object.fecha_de_registro }}</p>
+            
+            {% if object.puede_ser_eliminado %}
+                <div class="countdown-container">
+                    <p>Tiempo restante para eliminar:</p>
+                    {% with tiempo=tiempo_restante %}
+                        <div class="time-remaining">
+                            <span class="time-unit">{{ tiempo.horas }}</span>horas
+                            <span class="time-unit">{{ tiempo.minutos }}</span>minutos
+                            <span class="time-unit">{{ tiempo.segundos }}</span>segundos
+                        </div>
+                    {% endwith %}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Confirmar Eliminación
+                        </button>
+                        <a href="{% url 'bien_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <div class="warning-text">
+                    <p>Este bien no puede ser eliminado por las siguientes razones:</p>
+                    <ul>
+                        {% if not tiempo_restante %}
+                            <li>Han pasado más de 48 horas desde su registro</li>
+                        {% endif %}
+                        {% if tiene_asignacion %}
+                            <li>El bien está asignado a un departamento</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'bien_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Actualización en tiempo real del contador
+    {% if object.puede_ser_eliminado %}
+        function updateCountdown() {
+            const endTime = new Date('{{ object.fecha_de_registro|date:"Y-m-d" }}').getTime() + (48 * 60 * 60 * 1000);
+            const now = new Date().getTime();
+            const timeLeft = endTime - now;
+
+            if (timeLeft <= 0) {
+                location.reload();
+                return;
+            }
+
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            document.querySelectorAll('.time-unit')[0].textContent = hours.toString().padStart(2, '0');
+            document.querySelectorAll('.time-unit')[1].textContent = minutes.toString().padStart(2, '0');
+            document.querySelectorAll('.time-unit')[2].textContent = seconds.toString().padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+    {% endif %}
+</script>
+{% endblock %}

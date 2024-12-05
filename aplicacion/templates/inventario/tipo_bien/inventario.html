@@ -1,0 +1,667 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Contenedor principal */
+    .dashboard-container {
+        padding: 2rem;
+        background-color: #f0f2f5;
+    }
+
+    /* Estilos del encabezado */
+    .page-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    /* Estilos de la tarjeta */
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: white;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .card-title {
+        color: #2c3e50;
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Estilos de la tabla */
+    .table-container {
+        padding: 1.5rem;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background: #f8f9fa;
+        color: #2c3e50;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border-bottom: 2px solid #e9ecef;
+        white-space: nowrap;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+    }
+
+    .table-compact th, 
+    .table-compact td {
+        padding: 0.75rem;
+    }
+
+    /* Estilos de los botones */
+    .btn-action {
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-new {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-new:hover,
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        color: white;
+    }
+
+    .btn-new:hover {
+        background: linear-gradient(135deg, #218838 0%, #1ba87e 100%);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #002855 0%, #003366 100%);
+    }
+
+    /* Botones de acción en la tabla */
+    .actions-menu {
+        display: inline-flex;
+        background: #f8f9fa;
+        padding: 0.3rem;
+        border-radius: 50px;
+        gap: 0.2rem;
+    }
+
+    .btn-icon {
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .btn-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-view {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .btn-edit {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .btn-info {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-view:hover { background: #138496; color: white; }
+    .btn-edit:hover { background: #e0a800; color: #000; }
+    .btn-info:hover { background: #5a6268; color: white; }
+
+    /* Badges y estados */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-stock-bajo {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.5rem;
+    }
+
+    .stats-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        background: #f8f9fa;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.3s ease;
+    }
+
+    .stats-badge:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+
+    .stats-icon {
+        font-size: 0.85rem;
+        width: 1.2rem;
+        text-align: center;
+    }
+
+    .stats-value {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .stats-warning {
+        color: #856404;
+        font-weight: 600;
+    }
+
+    /* Enlaces y elementos interactivos */
+    .tipo-bien-link {
+        color: #003366;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .tipo-bien-link:hover {
+        color: #004080;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+
+    /* Contenedores de estado */
+    .status-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    /* Clases utilitarias */
+    .actions-cell {
+        white-space: nowrap;
+        width: 1%;
+    }
+
+    .stock-bajo {
+        background-color: rgba(255, 243, 205, 0.3);
+    }
+
+    /* Estilos para el modal */
+    .modal-content {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+        background: #f8f9fa;
+        border-radius: 12px 12px 0 0;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal .stats-badge {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .modal .stats-badge:hover {
+        background-color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Estilos para DataTables */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5rem 1rem;
+        margin: 0 0.2rem;
+        border-radius: 4px;
+        border: none !important;
+        background: #f8f9fa !important;
+        color: #2c3e50 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef !important;
+        border: none !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #003366 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #dee2e6;
+        border-radius: 50px;
+        padding: 0.4rem 1rem;
+        margin-left: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #003366;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0,51,102,0.25);
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.4rem;
+        margin: 0 0.5rem;
+    }
+
+    .dataTables_info {
+        color: #6c757d;
+        padding-top: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stats-badge {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .btn-icon {
+            width: 1.8rem;
+            height: 1.8rem;
+        }
+
+        .status-badges {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .actions-menu {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-container {
+            padding: 1rem;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+    }
+
+        /* Estilos para tooltips mejorados */
+    .tooltip {
+        font-size: 0.875rem;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .tooltip .tooltip-inner {
+        background-color: #2c3e50;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        max-width: 200px;
+    }
+
+    .tooltip.bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: #2c3e50;
+    }
+
+    .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+        border-bottom-color: #2c3e50;
+    }
+
+    .tooltip.bs-tooltip-start .tooltip-arrow::before {
+        border-left-color: #2c3e50;
+    }
+
+    .tooltip.bs-tooltip-end .tooltip-arrow::before {
+        border-right-color: #2c3e50;
+    }
+
+    /* Modifica los stats-badge para incluir el cursor pointer */
+    .stats-badge {
+        cursor: help;
+    }
+</style>
+
+
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-boxes me-2"></i>
+            Inventario por Tipo de Bien
+        </h1>
+    </div>
+    
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-list me-2"></i>
+            Listado por Tipo de Bien
+        </h2>
+        <div class="d-flex gap-2">  <!-- Agregamos un contenedor flex con gap -->
+            <a href="{% url 'crear_tipo_bien' %}" class="btn btn-action btn-new">
+                <i class="fas fa-plus"></i>
+                Nuevo Tipo
+            </a>
+            <a href="{% url 'bien_create' %}" class="btn btn-action btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Agregar Bien
+            </a>
+        </div>
+    </div>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table id="tblStock" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Bien</th>
+                            <th style="width: 10%">Total</th>
+                            <th style="width: 40%">Estado</th>
+                            <th style="width: 10%">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tipo in tipos_bien %}
+                        <tr {% if tipo.disponibles <= tipo.stock_minimo %}class="stock-bajo"{% endif %}>
+                            <td>
+                                <a href="{% url 'detalle_tipo_bien' pk=tipo.id_tipo_bien %}" class="tipo-bien-link">
+                                    <i class="fas fa-box"></i>
+                                    {{ tipo.nombre }}
+                                </a>
+                                {% if tipo.disponibles <= tipo.stock_minimo %}
+                                    <span class="badge badge-stock-bajo">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Stock Bajo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="stats-value">{{ tipo.total_bienes }}</span>
+                            </td>
+                            <td>
+                                <div class="status-badges">
+                                    <span class="stats-badge" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          data-bs-trigger="hover focus"
+                                          title="Disponibles para asignación">
+                                        <i class="fas fa-check-circle stats-icon"></i>
+                                        <span class="stats-value {% if tipo.disponibles <= tipo.stock_minimo %}stats-warning{% endif %}">
+                                            {{ tipo.disponibles|default:0 }}
+                                        </span>
+                                    </span>
+                                    <span class="stats-badge" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          data-bs-trigger="hover focus"
+                                          title="Bienes asignados a departamentos">
+                                        <i class="fas fa-user-check stats-icon"></i>
+                                        {{ tipo.asignados|default:0 }}
+                                    </span>
+                                    <span class="stats-badge" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          data-bs-trigger="hover focus"
+                                          title="Bienes en préstamo temporal">
+                                        <i class="fas fa-hand-holding stats-icon"></i>
+                                        {{ tipo.en_prestamo|default:0 }}
+                                    </span>
+                                    <span class="stats-badge" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          data-bs-trigger="hover focus"
+                                          title="Bienes en mantenimiento o reparación">
+                                        <i class="fas fa-tools stats-icon"></i>
+                                        {{ tipo.en_mantenimiento|default:0 }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="actions-cell">
+                                <div class="actions-menu">
+                                    <a href="{% url 'detalle_tipo_bien' pk=tipo.id_tipo_bien %}" 
+                                       class="btn btn-icon btn-view" 
+                                       data-bs-toggle="tooltip"
+                                       title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'editar_tipo_bien' pk=tipo.id_tipo_bien %}" 
+                                       class="btn btn-icon btn-edit"
+                                       data-bs-toggle="tooltip"
+                                       title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-icon btn-info"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalDetalles-{{ tipo.id_tipo_bien }}"
+                                            title="Más información">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada tipo de bien -->
+    {% for tipo in tipos_bien %}
+    <div class="modal fade" id="modalDetalles-{{ tipo.id_tipo_bien }}" tabindex="-1" aria-labelledby="modalDetallesLabel-{{ tipo.id_tipo_bien }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetallesLabel-{{ tipo.id_tipo_bien }}">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Detalles de {{ tipo.nombre }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="stats-badge w-100">
+                                <i class="fas fa-box-open stats-icon"></i>
+                                <span>Desincorporados: {{ tipo.desincorporados|default:0 }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stats-badge w-100">
+                                <i class="fas fa-shield-alt stats-icon"></i>
+                                <span>Resguardados: {{ tipo.resguardados|default:0 }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stats-badge w-100">
+                                <i class="fas fa-arrow-down stats-icon"></i>
+                                <span>Stock Mínimo: {{ tipo.stock_minimo }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stats-badge w-100">
+                                <i class="fas fa-arrow-up stats-icon"></i>
+                                <span>Stock Máximo: {{ tipo.stock_maximo|default:'No definido' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if tipo.descripcion %}
+                    <div class="mt-4">
+                        <h6 class="mb-2">Descripción:</h6>
+                        <p class="mb-0">{{ tipo.descripcion }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="text-center">
+        <a href="{% url 'bien_list' %}" class="btn btn-action btn-primary">
+            <i class="fas fa-arrow-left"></i>
+            Volver a la lista de bienes
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+        // Manejar la apertura del modal
+        $('.btn-info').on('click', function(e) {
+            e.preventDefault();
+            var targetModal = $(this).data('bs-target');
+            $(targetModal).modal('show');
+        });
+
+</script>
+{% endblock %}

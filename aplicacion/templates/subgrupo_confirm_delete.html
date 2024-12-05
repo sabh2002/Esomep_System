@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .delete-card {
+        max-width: 500px;
+        margin: 2rem auto;
+    }
+    .delete-card .card-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <div class="card delete-card">
+        <div class="card-header">
+            <h4 class="mb-0">Eliminar Subgrupo</h4>
+        </div>
+        <div class="card-body">
+            <p class="mb-4">¿Está seguro que desea eliminar el subgrupo "{{ object.nombre }}" ({{ object.codigo }})?</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="buttons">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash mr-2"></i>Eliminar
+                    </button>
+                    <a href="{% url 'subgrupo_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

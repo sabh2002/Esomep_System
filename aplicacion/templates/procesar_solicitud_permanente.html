@@ -1,0 +1,579 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    
+    .modal-content {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        margin: auto;
+        position: relative;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .modal-title {
+        margin: 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-title i {
+        font-size: 1.2em;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        margin-top: 8px;
+        font-size: 0.9em;
+    }
+    
+    .alert-info {
+        background-color: #e9ecef;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    /* Estilos existentes */
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+    }
+    .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #5a6268;  /* Un gris más oscuro para hover */
+        border-color: #545b62;
+    }
+    .btn:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+    .alert {
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+    .mt-3 {
+        margin-top: 1rem;
+    }
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+        color: #856404;
+    }
+
+    /* Nuevos estilos para modales */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        animation: slideIn 0.3s ease;
+    }
+
+    .modal-header {
+        background-color: #f0f2f5; /* Cambiado de default/blanco a gris */
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+        color: white; /* Añadido para asegurar que el texto sea legible */
+    }
+
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #003366;
+        margin: 0;
+    }
+
+    .traslado-details {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 15px;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Procesar Solicitud de Traslado Permanente</h2>
+        </div>
+        <div class="card-body">
+            <h4>Detalles de la Solicitud</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Solicitante:</dt>
+                <dd class="col-sm-9">{{ solicitud.usuario_id.nombres}}</dd>
+                
+                {% if solicitud.departamento_solicitante %}
+                    <dt class="col-sm-3">Departamento Solicitante:</dt>
+                    <dd class="col-sm-9 departamento-info">{{ solicitud.departamento_solicitante.nombre_departamento }}</dd>
+                {% endif %}
+                
+                {% if solicitud.UnidadOrganizacional_solicitante %}
+                    <dt class="col-sm-3">Unidad Organizacional:</dt>
+                    <dd class="col-sm-9 unidad-info">{{ solicitud.UnidadOrganizacional_solicitante.nombre }}</dd>
+                {% endif %}
+                
+                <dt class="col-sm-3">Descripción:</dt>
+                <dd class="col-sm-9">{{ solicitud.descripcion }}</dd>
+            </dl>
+            
+            <form method="post" id="trasladoForm" action="{% url 'procesar_solicitud_permanente' solicitud.id_solicitudes %}">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="alert alert-danger">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div id="asignacionesInfo" class="mt-3"></div>
+                
+                <input type="hidden" name="action" id="action_input">
+                
+                <div class="mt-3">
+                    <button type="button" class="btn btn-success" onclick="mostrarAprobacion()">
+                        <i class="fas fa-check"></i> Aprobar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="mostrarRechazo()">
+                        <i class="fas fa-times"></i> Rechazar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Aprobación -->
+<div class="modal" id="modalAprobacion">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                Confirmar Aprobación de Traslado
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p>¿Está seguro que desea aprobar esta solicitud de traslado?</p>
+            <div class="traslado-details" id="trasladoDetails">
+                <!-- Los detalles del traslado se insertarán aquí -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalAprobacion')">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-success" onclick="confirmarAprobacion()">
+                <i class="fas fa-check"></i> Confirmar Aprobación
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Rechazo -->
+<div class="modal" id="modalRechazo">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                Confirmar Rechazo
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p>Por favor, indique el motivo del rechazo:</p>
+            <textarea id="motivoRechazoModal" class="form-control" rows="3" 
+                      placeholder="Ingrese el motivo del rechazo"></textarea>
+            <div class="error-message" id="motivoRechazoError" style="display: none; color: #dc3545; margin-top: 5px;"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalRechazo')">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="confirmarRechazo()">
+                <i class="fas fa-check"></i> Confirmar Rechazo
+            </button>
+        </div>
+    </div>
+</div>
+<script id="asignaciones-data" type="application/json">
+    {{ form.asignaciones_json|safe }}
+</script>
+<script>
+// Variables globales
+let asignaciones = {};
+let currentModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar asignaciones
+    try {
+        const asignacionesData = document.getElementById('asignaciones-data');
+        if (asignacionesData) {
+            asignaciones = JSON.parse(asignacionesData.textContent);
+            console.log('Asignaciones cargadas:', asignaciones);
+        }
+    } catch (e) {
+        console.error('Error al parsear asignaciones:', e);
+    }
+
+    // Event listeners
+    initializeEventListeners();
+});
+
+function initializeEventListeners() {
+    // Manejador para el select de bienes
+    const bienSelect = document.getElementById('id_bien_id');
+    if (bienSelect) {
+        bienSelect.addEventListener('change', function() {
+            actualizarInformacionBien(this.value);
+        });
+        if (bienSelect.value) {
+            actualizarInformacionBien(bienSelect.value);
+        }
+    }
+
+    // Event listeners para los modales
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            cerrarModal(event.target.id);
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && currentModal) {
+            cerrarModal(currentModal);
+        }
+    });
+
+    // Prevenir propagación de clics en el contenido del modal
+    document.querySelectorAll('.modal-content').forEach(content => {
+        content.addEventListener('click', e => e.stopPropagation());
+    });
+
+    // Event listeners para botones de aprobación y rechazo
+    const btnAprobar = document.querySelector('[onclick="mostrarAprobacion()"]');
+    const btnRechazar = document.querySelector('[onclick="mostrarRechazo()"]');
+    
+    if (btnAprobar) {
+        btnAprobar.onclick = mostrarAprobacion;
+    }
+    if (btnRechazar) {
+        btnRechazar.onclick = mostrarRechazo;
+    }
+}
+
+function validarCampos() {
+    const bienSelect = document.getElementById('id_bien_id');
+    if (!bienSelect?.value) {
+        alert('Por favor, seleccione un bien.');
+        return false;
+    }
+    return true;
+}
+
+function actualizarInformacionBien(bienId) {
+    const asignacionesInfo = document.getElementById('asignacionesInfo');
+    if (!asignacionesInfo) return;
+    
+    asignacionesInfo.innerHTML = '';
+    
+    if (bienId && asignaciones[bienId] && asignaciones[bienId].length > 0) {
+        const asignacion = asignaciones[bienId][0];
+        let ubicacionText = asignacion.ubicacion_tipo === 'departamento' ? 
+            `Departamento: ${asignacion.ubicacion_nombre}` : 
+            `Unidad: ${asignacion.ubicacion_nombre}`;
+        
+        if (asignacion.unidad_nombre) {
+            ubicacionText += ` - Unidad: ${asignacion.unidad_nombre}`;
+        }
+
+        asignacionesInfo.innerHTML = `
+            <div class="alert alert-info">
+                <strong>Ubicación actual:</strong> ${ubicacionText}<br>
+                <strong>Cantidad disponible:</strong> ${asignacion.cantidad}
+            </div>
+        `;
+    }
+}
+
+function mostrarAprobacion() {
+    if (!validarCampos()) return;
+
+    const bienSelect = document.getElementById('id_bien_id');
+    const bienId = bienSelect.value;
+
+    if (!asignaciones[bienId] || !asignaciones[bienId].length) {
+        alert('No se encontró información de la asignación actual del bien');
+        return;
+    }
+
+    const asignacion = asignaciones[bienId][0];
+    const bienText = bienSelect.options[bienSelect.selectedIndex].text;
+    
+    const ubicacionOrigen = asignacion.ubicacion_tipo === 'departamento' ?
+        `Departamento: ${asignacion.ubicacion_nombre}` :
+        `Unidad: ${asignacion.ubicacion_nombre}`;
+
+    const deptoInfo = document.querySelector('.departamento-info');
+    const unidadInfo = document.querySelector('.unidad-info');
+    
+    const ubicacionDestino = deptoInfo ? 
+        deptoInfo.textContent.trim() :
+        unidadInfo ? unidadInfo.textContent.trim() : 'No especificado';
+
+    const trasladoDetails = document.getElementById('trasladoDetails');
+    if (trasladoDetails) {
+        trasladoDetails.innerHTML = `
+            <div class="alert alert-info">
+                <strong>Bien:</strong> ${bienText}<br>
+                <strong>Desde:</strong> ${ubicacionOrigen}<br>
+                <strong>Hacia:</strong> ${ubicacionDestino}<br>
+                <strong>Cantidad:</strong> 1
+            </div>
+        `;
+    }
+
+    const modal = document.getElementById('modalAprobacion');
+    if (modal) {
+        modal.style.display = 'flex';
+        currentModal = 'modalAprobacion';
+    }
+}
+
+function mostrarRechazo() {
+    const modal = document.getElementById('modalRechazo');
+    if (modal) {
+        modal.style.display = 'flex';
+        currentModal = 'modalRechazo';
+        
+        const motivoRechazoModal = document.getElementById('motivoRechazoModal');
+        const motivoRechazoError = document.getElementById('motivoRechazoError');
+        
+        if (motivoRechazoModal) {
+            motivoRechazoModal.value = '';
+        }
+        if (motivoRechazoError) {
+            motivoRechazoError.style.display = 'none';
+        }
+    }
+}
+
+function confirmarAprobacion() {
+    console.log('Confirmando aprobación...');
+    const form = document.getElementById('trasladoForm');
+    const actionInput = document.getElementById('action_input');
+    
+    if (form && actionInput) {
+        actionInput.value = 'aprobar';
+        cerrarModal('modalAprobacion');
+        form.submit();
+    } else {
+        console.error('No se encontró el formulario o el input de acción');
+    }
+}
+
+function confirmarRechazo() {
+    console.log('Confirmando rechazo...');
+    const motivoRechazo = document.getElementById('motivoRechazoModal')?.value.trim();
+    const errorElement = document.getElementById('motivoRechazoError');
+    
+    if (!motivoRechazo) {
+        if (errorElement) {
+            errorElement.textContent = 'Debe ingresar un motivo para el rechazo';
+            errorElement.style.display = 'block';
+        }
+        return;
+    }
+
+    const form = document.getElementById('trasladoForm');
+    if (!form) {
+        console.error('No se encontró el formulario');
+        return;
+    }
+
+    // Crear o actualizar el input oculto para el motivo
+    let motivoInput = document.getElementById('motivo_rechazo_input');
+    if (!motivoInput) {
+        motivoInput = document.createElement('input');
+        motivoInput.type = 'hidden';
+        motivoInput.name = 'motivo_rechazo';
+        motivoInput.id = 'motivo_rechazo_input';
+        form.appendChild(motivoInput);
+    }
+    motivoInput.value = motivoRechazo;
+
+    // Establecer la acción y enviar
+    const actionInput = document.getElementById('action_input');
+    if (actionInput) {
+        actionInput.value = 'rechazar';
+        cerrarModal('modalRechazo');
+        form.submit();
+    }
+}
+
+function cerrarModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        currentModal = null;
+    }
+}
+</script>
+<script>
+$(document).ready(function() {
+    // Inicializar Select2 para el campo bien_id
+    $('#id_bien_id').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Seleccione un bien para trasladar',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No se encontraron bienes disponibles";
+            },
+            searching: function() {
+                return "Buscando...";
+            }
+        },
+        templateResult: formatBien,
+        templateSelection: formatBienSelection
+    });
+
+    // Función para formatear cada opción en el dropdown
+    function formatBien(bien) {
+        if (!bien.id) return bien.text;
+        
+        // Dividir el texto para mostrar la información de manera más estructurada
+        const parts = bien.text.split(' - ');
+        const nombre = parts[0];
+        const id = parts[1];
+        const depto = parts[2] || '';
+        
+        return $(`
+            <div class="d-flex flex-column">
+                <strong>${nombre}</strong>
+                <small class="text-muted">${id}</small>
+                <small class="text-info">${depto}</small>
+            </div>
+        `);
+    }
+
+    // Función para formatear la opción seleccionada
+    function formatBienSelection(bien) {
+        if (!bien.id) return bien.text;
+        const parts = bien.text.split(' - ');
+        return parts[0] + ' - ' + parts[1];
+    }
+});
+</script>
+{% endblock %}

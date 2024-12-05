@@ -1,0 +1,449 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Sistema de Gestión de Bienes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background-color: #f0f3f5;
+        }
+        
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+        }
+        
+        .login-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 51, 102, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .login-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 51, 102, 0.15);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: logoFloat 1s ease-out;
+        }
+        
+        @keyframes logoFloat {
+            0% {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .logo img {
+            max-width: 200px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+        
+        input:focus {
+            border-color: #003366;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+            background-color: #ffffff;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #6c757d;
+            padding: 4px;
+            transition: color 0.3s ease;
+        }
+        
+        .password-toggle:hover {
+            color: #003366;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #003366 0%, #004080 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #004080 0%, #004d99 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin: 16px 0;
+            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .error-input {
+            border-color: #dc3545;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #6c757d;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+        
+        .footer:hover {
+            opacity: 1;
+        }
+        
+        /* Efecto de carga en el botón durante el submit */
+        .btn.loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .btn.loading::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <img src="{% static 'imagenes/logo.png' %}" alt="Logo Institucional">
+            </div>
+            <h1>Bienvenido al Sistema para la Gestión de Bienes Muebles en la Empresa ESOMEP</h1>
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Cédula</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Mostrar contraseña">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+
+
+                </div>
+                <button type="submit" class="btn">Iniciar Sesión</button>
+            </form>
+            <div id="errorMessage" class="error-message" style="display: none;">
+                Credenciales incorrectas. Por favor, intente nuevamente.
+            </div>
+            <div class="footer">
+                <p>Sistema de Gestión de Bienes &copy; {% now "Y" %}</p>
+                <p>Soporte Técnico: --------</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const usernameInput = document.getElementById('username');
+        
+            // Función para obtener el token CSRF
+            function getCSRFToken() {
+                const cookieValue = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('csrftoken='))
+                    ?.split('=')[1];
+                return cookieValue;
+            }
+        
+            // Remover cualquier evento existente
+            passwordToggle.removeEventListener('click', togglePassword);
+            
+            function togglePassword() {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                passwordToggle.innerHTML = isPassword ? 
+                    '<i class="fas fa-eye-slash"></i>' : 
+                    '<i class="fas fa-eye"></i>';
+                passwordToggle.setAttribute('aria-label', 
+                    isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            }
+        
+            // Validación de solo números en el campo de cédula
+            usernameInput.addEventListener('keypress', function(e) {
+                if (!/^\d$/.test(e.key) && e.key !== 'Enter') {
+                    e.preventDefault();
+                }
+            });
+        
+            usernameInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                if (/^\d+$/.test(pastedText)) {
+                    const maxLength = 10;
+                    const truncatedText = pastedText.slice(0, maxLength);
+                    this.value = truncatedText;
+                }
+            });
+        
+            usernameInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+        
+                // Resetear estados de error
+                resetErrors();
+        
+                // Obtener el botón de submit
+                const submitButton = this.querySelector('button[type="submit"]');
+        
+                // Validación básica
+                if (usernameInput.value.trim() === '') {
+                    showError('Por favor ingrese su número de cédula.', 'username');
+                    highlightField(usernameInput);
+                    return;
+                }
+        
+                if (passwordInput.value.trim() === '') {
+                    showError('Por favor ingrese su contraseña.', 'password');
+                    highlightField(passwordInput);
+                    return;
+                }
+        
+        
+                try {
+                    // Activar estado de carga
+                    submitButton.classList.add('loading');
+                    submitButton.disabled = true;
+        
+                    const formData = new FormData(this);
+                    const response = await fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    });
+        
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            handleErrorResponse(data);
+                        }
+                    } else {
+                        showError('Error de conexión con el servidor.', 'general');
+                    }
+                } catch (error) {
+                    showError('Error de conexión. Por favor, verifique su conexión a internet.', 'general');
+                } finally {
+                    // Desactivar estado de carga
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+                }
+            });
+        
+            function handleErrorResponse(data) {
+                showError(data.error, data.error_type);
+                
+                // Resaltar el campo correspondiente
+                if (data.error_type === 'username') {
+                    highlightField(usernameInput);
+                    usernameInput.focus();
+                } else if (data.error_type === 'password') {
+                    highlightField(passwordInput);
+                    passwordInput.focus();
+                }
+            }
+        
+            function showError(message, type) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                
+                // Agregar icono según el tipo de error
+                const icon = getErrorIcon(type);
+                errorMessage.innerHTML = `${icon} ${message}`;
+                
+                // Efecto de shake
+                errorMessage.classList.add('shake');
+                setTimeout(() => {
+                    errorMessage.classList.remove('shake');
+                }, 500);
+            }
+        
+            function getErrorIcon(type) {
+                switch(type) {
+                    case 'username':
+                        return '<i class="fas fa-user-times"></i>';
+                    case 'password':
+                        return '<i class="fas fa-lock"></i>';
+                    case 'account':
+                        return '<i class="fas fa-user-slash"></i>';
+                    default:
+                        return '<i class="fas fa-exclamation-circle"></i>';
+                }
+            }
+        
+            function highlightField(field) {
+                field.classList.add('error-input');
+                field.addEventListener('input', function removeHighlight() {
+                    field.classList.remove('error-input');
+                    errorMessage.style.display = 'none';
+                    field.removeEventListener('input', removeHighlight);
+                });
+            }
+        
+            function resetErrors() {
+                errorMessage.style.display = 'none';
+                usernameInput.classList.remove('error-input');
+                passwordInput.classList.remove('error-input');
+            }
+        
+            // Agregar el evento del toggle de contraseña
+            passwordToggle.addEventListener('click', togglePassword);
+        });
+    </script>
+</body>
+</html>

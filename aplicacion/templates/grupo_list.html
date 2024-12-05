@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background: linear-gradient(135deg, #003366 0%, #004a94 100%);
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 1rem 1.5rem;
+    }
+    .search-box {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .search-box .form-control {
+        padding-left: 2.5rem;
+        border-radius: 20px;
+    }
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    .btn-add {
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        border-top: none;
+    }
+    .action-buttons {
+        white-space: nowrap;
+    }
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.2rem;
+    }
+    .codigo-cell {
+        font-family: monospace;
+        min-width: 3em;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Grupos</h4>
+            <a href="{% url 'grupo-create' %}" class="btn btn-light btn-add">
+                <i class="fas fa-plus-circle"></i> Nuevo Grupo
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Búsqueda -->
+            <form method="get" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Buscar por código, nombre o descripción..."
+                       value="{{ search_query }}">
+            </form>
+
+            <!-- Mensajes -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Tabla -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="10%">Código</th>
+                            <th width="35%">Nombre</th>
+                            <th width="40%">Descripción</th>
+                            <th width="15%" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grupo in grupos %}
+                            <tr>
+                                <td>{{ grupo.codigo }}</td>
+                                <td>{{ grupo.nombre }}</td>
+                                <td>{{ grupo.descripcion }}</td>
+                                <td class="text-center action-buttons">
+                                    <a href="{% url 'grupo-update' grupo.pk %}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No hay grupos registrados.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Para autosubmit del formulario de búsqueda
+    document.querySelector('input[name="search"]').addEventListener('input', function(e) {
+        let timeoutId;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            this.form.submit();
+        }, 500);
+    });
+
+    // Formatear los códigos al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const codigoCells = document.querySelectorAll('.codigo-cell');
+        codigoCells.forEach(cell => {
+            const codigo = cell.textContent.trim();
+            if (codigo && !isNaN(codigo)) {
+                cell.textContent = codigo.padStart(2, '0');
+            }
+        });
+    });
+</script>
+{% endblock %}

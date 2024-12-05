@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    .card-body {
+        padding: 30px;
+    }
+    .info-group {
+        margin-bottom: 20px;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #003366;
+        margin-bottom: 5px;
+    }
+    .info-value {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+    }
+    .btn-primary:hover {
+        background-color: #002244;
+        border-color: #002244;
+    }
+    .estado-badge {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .motivo-rechazo {
+        background-color: #fff3f3;
+        border-left: 4px solid #dc3545;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 4px;
+    }
+    
+    .motivo-rechazo .info-label {
+        color: #dc3545;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .motivo-rechazo .info-value {
+        background-color: transparent;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .estado-badge.bg-danger {
+        background-color: #dc3545 !important;
+        padding: 6px 12px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Detalle de Solicitud #{{ solicitud.id_solicitudes }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="info-group">
+                <div class="info-label">Solicitante</div>
+                <div class="info-value">
+                    {{ solicitud.usuario_id.nombres }} {{ solicitud.usuario_id.apellidos }} (Cédula: {{ solicitud.usuario_id.cedula }})
+                </div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Tipo de Solicitud</div>
+                <div class="info-value">{{ solicitud.id_tipos_de_solicitud.nombre }}</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Descripción</div>
+                <div class="info-value">{{ solicitud.descripcion }}</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Fecha de Solicitud</div>
+                <div class="info-value">{{ solicitud.fecha_solicitud|date:"d/m/Y" }}</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Estado</div>
+                <div class="info-value">
+                    <span class="estado-badge 
+                        {% if solicitud.estado_solicitud == 'pendiente' %}
+                            bg-warning text-dark
+                        {% elif solicitud.estado_solicitud == 'aprobada' %}
+                            bg-success text-white
+                        {% elif solicitud.estado_solicitud == 'rechazada' %}
+                            bg-danger text-white
+                        {% endif %}">
+                        {{ solicitud.get_estado_solicitud_display }}
+                    </span>
+                </div>
+            </div>
+
+            {% if solicitud.estado_solicitud == 'rechazada' and solicitud.motivo_rechazo %}
+            <div class="motivo-rechazo">
+                <div class="info-label">Motivo del Rechazo</div>
+                <div class="info-value">{{ solicitud.motivo_rechazo }}</div>
+            </div>
+            {% endif %}
+
+            <!-- ... resto de los grupos de información ... -->
+
+            {% if solicitud.bien_id %}
+                <div class="info-group">
+                    <div class="info-label">Bien</div>
+                    <div class="info-value">{{ solicitud.bien_id.nombre }}</div>
+                </div>
+            {% endif %}
+
+            {% if solicitud.cantidad_solicitada %}
+                <div class="info-group">
+                    <div class="info-label">Cantidad Solicitada</div>
+                    <div class="info-value">{{ solicitud.cantidad_solicitada }}</div>
+                </div>
+            {% endif %}
+
+            {% if solicitud.departamento_destino %}
+                <div class="info-group">
+                    <div class="info-label">Departamento Destino</div>
+                    <div class="info-value">{{ solicitud.departamento_destino.nombre_departamento }}</div>
+                </div>
+            {% endif %}
+
+            {% if solicitud.fecha_maxima_traslado %}
+                <div class="info-group">
+                    <div class="info-label">Fecha Máxima de Traslado</div>
+                    <div class="info-value">{{ solicitud.fecha_maxima_traslado|date:"d/m/Y" }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{% url 'lista_solicitudes' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a la lista
+        </a>
+        {% if user.id_rol_del_usuario.nombre_rol == 'ADMIN_BIENES' and solicitud.estado_solicitud == 'pendiente' %}
+            <a href="{}" class="btn btn-primary">
+                <i class="fas fa-cog mr-2"></i>Procesar Solicitud
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

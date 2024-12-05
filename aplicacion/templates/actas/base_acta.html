@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2.5cm;
+            @top-left {
+                content: '';
+                margin: 10pt 0 30pt 0;
+            }
+            @top-right {
+                content: 'Página ' counter(page);
+                margin: 10pt 0 30pt 0;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .logo {
+            height: 60px;
+            width: auto;
+        }
+        .title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            text-transform: uppercase;
+        }
+        .content {
+            text-align: justify;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .signature {
+            margin-top: 80px;
+            text-align: center;
+        }
+        .dual-signature {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 80px;
+        }
+        .signature-block {
+            text-align: center;
+            width: 45%;
+        }
+        .signature-line {
+            border-top: 1px solid black;
+            width: 200px;
+            margin: 10px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            font-size: 11pt;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .property-table th {
+            width: 30%;
+        }
+        .details {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>

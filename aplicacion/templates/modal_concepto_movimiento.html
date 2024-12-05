@@ -1,0 +1,27 @@
+<!-- templates/bienes/modal_concepto_movimiento.html -->
+<div class="modal fade" id="modalConceptoMovimiento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Actualizar Concepto de Movimiento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formConceptoMovimiento">
+            <input type="hidden" id="bienId" name="bien_id">
+            <div class="mb-3">
+              <label for="conceptoMovimiento" class="form-label">Nuevo Concepto:</label>
+              <select class="form-select" id="conceptoMovimiento" name="concepto_id" required>
+                <!-- Las opciones se cargarán dinámicamente -->
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarConcepto">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+

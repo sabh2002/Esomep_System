@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+    .card-header {
+        background-color: #003366;
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+        padding: 20px;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    .card-body {
+        padding: 30px;
+    }
+
+    /* Estilos para DataTables */
+    .dataTables_wrapper .dataTables_length select {
+        padding: 6px 30px 6px 12px;
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        color: #003366;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        padding: 6px 12px;
+        color: #003366;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        color: #003366;
+        padding-top: 15px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 15px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 4px;
+        border-radius: 4px;
+        border: 1px solid #e3e6f0;
+        background: #fff !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #003366 !important;
+        color: white !important;
+        border: 1px solid #003366;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #002244 !important;
+        color: white !important;
+        border: 1px solid #002244;
+    }
+
+    /* Estilos de la tabla */
+    #tablaSolicitudes {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #tablaSolicitudes thead th {
+        background-color: #003366;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+        padding: 12px 15px;
+        border-bottom: none;
+    }
+
+    #tablaSolicitudes tbody td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    #tablaSolicitudes tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 51, 102, 0.05);
+    }
+
+    /* Estilos de botones */
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-light {
+        color: #003366;
+        background-color: #fff;
+        border: 1px solid #003366;
+        padding: 8px 16px;
+    }
+
+    .btn-light:hover {
+        background-color: #f8f9fa;
+        color: #002244;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+        border-color: #002244;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        color: #fff;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #138496;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.813rem;
+    }
+
+    /* Estilos para badges */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.813rem;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    /* Estilos para la columna de acciones */
+    .actions-column {
+        white-space: nowrap;
+        min-width: 150px;
+    }
+
+    .actions-column .btn {
+        margin-right: 5px;
+    }
+
+    /* Iconos */
+    .fas {
+        margin-right: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .actions-column {
+            min-width: auto;
+        }
+        
+        .btn-sm {
+            padding: 3px 6px;
+        }
+    }
+</style>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+
+
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="card-title">Solicitudes</h2>
+            {% if user.is_authenticated and user.id_rol_del_usuario.nombre_rol != 'ADMIN_BIENES' %}
+                <a href="{% url 'crear_solicitud' %}" class="btn btn-light">
+                    <i class="fas fa-plus-circle"></i>Crear Nueva Solicitud
+                </a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tablaSolicitudes" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo de Solicitud</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for solicitud in solicitudes %}
+                            <tr>
+                                <td>{{ solicitud.id_solicitudes }}</td>
+                                <td>
+                                    {% if solicitud.id_tipos_de_solicitud.nombre == 'Nuevo bien' %}
+                                        Incorporación
+                                    {% else %}
+                                        {{ solicitud.id_tipos_de_solicitud.nombre }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ solicitud.fecha_solicitud|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if solicitud.estado_solicitud == 'pendiente' %}
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    {% elif solicitud.estado_solicitud == 'aprobada' %}
+                                        <span class="badge bg-success">Aprobada</span>
+                                    {% elif solicitud.estado_solicitud == 'rechazada' %}
+                                        <span class="badge bg-danger">Rechazada</span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions-column">
+                                    <a href="{% url 'detalle_solicitud' solicitud.id_solicitudes %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>Ver
+                                    </a>
+                                    {% if user.id_rol_del_usuario.nombre_rol == 'ADMIN_BIENES' and solicitud.estado_solicitud == 'pendiente' %}
+                                    {% if solicitud.id_tipos_de_solicitud.nombre == 'Desincorporación' %}
+                                        <a href="{% url 'procesar_desincorporacion' solicitud.id_solicitudes %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-cog"></i>Procesar
+                                        </a>
+                                    {% elif solicitud.id_tipos_de_solicitud.nombre == 'Traslado Permanente' %}
+                                        <a href="{% url 'procesar_solicitud_permanente' solicitud.id_solicitudes %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-cog"></i>Procesar
+                                        </a>
+                                    {% elif solicitud.id_tipos_de_solicitud.nombre == 'Traslado Temporal' %}
+                                        <a href="{% url 'procesar_solicitud_temporal' solicitud.id_solicitudes %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-cog"></i>Procesar
+                                        </a>
+                                    {% elif solicitud.id_tipos_de_solicitud.nombre == 'Nuevo bien' %}
+                                        <a href="{% url 'procesar_solicitud_nuevo_bien' solicitud.id_solicitudes %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus-circle"></i>Incorporación
+                                        </a>
+                                    {% elif solicitud.id_tipos_de_solicitud.nombre == 'Mantenimiento' %}
+                                        <a href="{% url 'procesar_solicitud_mantenimiento' solicitud.id_solicitudes %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-tools"></i>Procesar
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-secondary btn-sm disabled">
+                                            <i class="fas fa-cog"></i>Procesar
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No hay solicitudes registradas.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#tablaSolicitudes').DataTable({
+            responsive: true,
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            order: [[0, 'desc']], // Ordenar por ID de forma descendente
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+            columnDefs: [
+                {
+                    targets: -1,
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+    });
+</script>
+{% endblock %}

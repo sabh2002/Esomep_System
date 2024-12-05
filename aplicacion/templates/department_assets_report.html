@@ -1,0 +1,149 @@
+{% load static %}
+<style>
+    @page {
+        size: landscape;
+        margin: 15mm;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+    .header-container {
+        width: 100%;
+        height: 70px;
+        position: relative;
+        margin-bottom: 5px;
+    }
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        position: absolute;
+        width: 100%;
+        top: 0;
+    }
+    .logo-izq, .logo-der {
+        height: 60px;
+        width: auto;
+    }
+    .header {
+        text-align: center;
+        padding-top: 35px;
+    }
+    .title {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 3px 0;
+    }
+    .department-info {
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 15px 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 4px;
+        font-size: 9px;
+    }
+    th {
+        background-color: #f2f2f2;
+        text-align: center;
+    }
+    .text-right {
+        text-align: right;
+    }
+    .footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .signature {
+        margin-top: 30px;
+        border-top: 1px solid #000;
+        display: inline-block;
+        padding: 8px 20px;
+        font-size: 10px;
+    }
+</style>
+
+<div class="header-container">
+    <div class="logo-container">
+        {% if logo_portuguesa_base64 %}
+        <img class="logo-izq" src="data:image/png;base64,{{ logo_portuguesa_base64 }}" alt="Logo Portuguesa" />
+        {% endif %}
+        {% if logo_esomep_base64 %}
+        <img class="logo-der" src="data:image/png;base64,{{ logo_esomep_base64 }}" alt="Logo ESOMEP" />
+        {% endif %}
+    </div>
+</div>
+
+<div class="header">
+    <h1 class="title">INVENTARIO DE BIENES POR DEPARTAMENTO</h1>
+    <h2 class="title">{{ department.nombre_departamento }}</h2>
+</div>
+
+<div class="department-info">
+    <p><strong>Código del Departamento:</strong> {{ department.codigo_departamento }}</p>
+    <p><strong>Descripción:</strong> {{ department.descripcion }}</p>
+    <p><strong>Total de Bienes:</strong> {{ total_bienes }}</p>
+    <p><strong>Período:</strong> {{ fecha_periodo }}</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>N° Identificación</th>
+            <th>Descripción del Bien</th>
+            <th>Condición</th>
+            <th>Fecha Asignación</th>
+            <th>Valor (Bs.)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bien in bienes %}
+        <tr>
+            <td>{{ bien.id_grupo.codigo }}.{{ bien.id_subgrupo.codigo }}{% if bien.id_seccion_subgrupo %}.{{ bien.id_seccion_subgrupo.codigo }}{% endif %}</td>
+            <td>{{ bien.numero_de_identificacion|default:"S/N" }}</td>
+            <td>
+                {{ bien.nombre }}
+                {% if bien.observacion %} - {{ bien.observacion }}{% endif %}
+                {% if bien.especificacion_set.exists %}
+                {% for esp in bien.especificacion_set.all %}
+                {{ esp.especificacion }}: {{ esp.descripcion_especificacion }}
+                {% endfor %}
+                {% endif %}
+            </td>
+            <td>{{ bien.condicion }}</td>
+            <td>{{ bien.asignaciondebienes_set.first.fecha_de_asignacion|date:"d/m/Y" }}</td>
+            <td class="text-right">{{ bien.incorporacion|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5" class="text-right"><strong>TOTAL:</strong></td>
+            <td class="text-right"><strong>Bs. {{ total_incorporacion|floatformat:2 }}</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="footer">
+    <div class="signature">
+        <p>ING. YAJAIRA GARCIA</p>
+        <p>JEFE DEL DEPARTAMENTO DE BIENES</p>
+        <p>SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ fecha|date:"Y" }}</p>
+    </div>
+</div>

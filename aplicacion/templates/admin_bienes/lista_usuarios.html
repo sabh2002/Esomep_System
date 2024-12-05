@@ -1,0 +1,569 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .page-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: #fff;
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .page-title {
+        font-size: 2.2rem;
+        margin: 0;
+        text-align: center;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background: #fff;
+        border-bottom: 1px solid #edf2f7;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-title {
+        color: #2d3748;
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    .table-responsive {
+        padding: 0 15px;
+    }
+    #tblUsuarios {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 15px 0;
+    }
+    #tblUsuarios th {
+        background: #003366;
+        color: #fff;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        padding: 15px;
+        text-align: left;
+        border-top: none;
+    }
+    #tblUsuarios td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+    }
+    #tblUsuarios tbody tr:hover {
+        background-color: #f8fafc;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Botones mejorados */
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 5px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-action i {
+        font-size: 1rem;
+    }
+    .btn-action.btn-lock {
+        background-color: #eab308;
+        color: white;
+    }
+    .btn-action.btn-lock:hover {
+        background-color: #ca8a04;
+    }
+    .btn-action.btn-unlock {
+        background-color: #22c55e;
+        color: white;
+    }
+    .btn-action.btn-unlock:hover {
+        background-color: #16a34a;
+    }
+    .btn-action.btn-delete {
+        background-color: #ef4444;
+        color: white;
+    }
+    .btn-action.btn-delete:hover {
+        background-color: #dc2626;
+    }
+    .btn-action.btn-reset {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .btn-action.btn-reset:hover {
+        background-color: #2563eb;
+    }
+    .btn-action[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Estado badges mejorados */
+    .estado-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+    .estado-activo { 
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    .estado-bloqueado { 
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .estado-eliminado { 
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+
+    /* Badge de bienes mejorado */
+    .badge-bienes {
+        background-color: #dbeafe;
+        color: #1e40af;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .badge-bienes i {
+        font-size: 0.9rem;
+    }
+
+
+    /* Tooltips mejorados */
+    [data-tooltip] {
+        position: relative;
+    }
+    [data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        background-color: #1f2937;
+        color: white;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+    [data-tooltip]:hover:before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Modal mejorado */
+    .modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 400px;
+        margin: 10% auto;
+    }
+    .modal-content h4 {
+        color: #1f2937;
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    .modal-footer {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    .modal-btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .modal-btn-cancel {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+    .modal-btn-confirm {
+        background-color: #003366;
+        color: white;
+    }
+
+    /* Toast mejorado */
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: toastSlideIn 0.3s ease forwards;
+    }
+    @keyframes toastSlideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .toast-success {
+        background-color: #dcfce7;
+        border-left: 4px solid #22c55e;
+        color: #166534;
+    }
+    .toast-error {
+        background-color: #fee2e2;
+        border-left: 4px solid #ef4444;
+        color: #991b1b;
+    }
+
+    /* Registro nuevo usuario botón */
+    .btn-register {
+        background-color: #003366;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-register:hover {
+        background-color: #002244;
+        transform: translateY(-1px);
+    }
+    .btn-register i {
+        font-size: 1.1rem;
+    }
+
+    /* Responsive mejoras */
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+        }
+        .btn-action {
+            width: 32px;
+            height: 32px;
+        }
+        .estado-badge, .badge-bienes {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+        }
+    }
+
+    /* Agregar dentro del bloque <style> existente */
+.ubicacion-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ubicacion-badge i {
+    font-size: 0.9rem;
+}
+
+.ubicacion-depto {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.ubicacion-gerencia {
+    background-color: #f0fdf4;
+    color: #166534;
+}
+
+.ubicacion-none {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Listado de Usuarios</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Usuarios Registrados</h2>
+            <a href="{% url 'registro_usuario' %}" class="btn-register">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrar Usuario</span>
+            </a>
+        </div>
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table id="tblBienes" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Departamento o Unidad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr data-usuario-id="{{ usuario.pk }}">
+                            <td>{{ usuario.cedula }}</td>
+                            <td>{{ usuario.nombres }} {{ usuario.apellidos }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.id_rol_del_usuario.nombre_rol }}</td>
+                            <td>
+                                {% if usuario.id_departamentos %}
+                                    <span class="ubicacion-badge ubicacion-depto">
+                                        <i class="fas fa-building"></i>
+                                        {{ usuario.id_departamentos.nombre_departamento }}
+                                    </span>
+                                {% elif usuario.id_unidadOrganizacional %}
+                                    <span class="ubicacion-badge ubicacion-unidad">
+                                        <i class="fas fa-sitemap"></i>
+                                        {{ usuario.id_unidadOrganizacional.nombre }}
+                                    </span>
+                                {% else %}
+                                    <span class="ubicacion-badge ubicacion-none">
+                                        <i class="fas fa-question-circle"></i>
+                                        Sin asignación
+                                    </span>
+                                {% endif %}
+                             </td>
+                            <td>
+                                <span class="estado-badge estado-{{ usuario.estado }}">
+                                    {{ usuario.get_estado_display }}
+                                </span>
+                            </td>
+                            <td class="actions-column">
+                                {% if usuario.estado == 'activo' %}
+                                    <button class="btn-action btn-lock cambiar-estado" 
+                                            data-usuario-id="{{ usuario.pk }}"
+                                            data-accion="bloquear"
+                                            data-tooltip="Bloquear usuario">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                {% elif usuario.estado == 'bloqueado' %}
+                                    <button class="btn-action btn-unlock cambiar-estado"
+                                            data-usuario-id="{{ usuario.pk }}"
+                                            data-accion="desbloquear"
+                                            data-tooltip="Desbloquear usuario">
+                                        <i class="fas fa-unlock"></i>
+                                    </button>
+                                {% endif %}
+                        
+                                
+                                <a href="{% url 'restablecer_contrasena' usuario.pk %}" 
+                                   class="btn-action btn-reset"
+                                   data-tooltip="Restablecer contraseña">
+                                    <i class="fas fa-key"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                No se encontraron usuarios registrados
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h4>Confirmar Acción</h4>
+        <p id="confirmMessage"></p>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" id="cancelAction">Cancelar</button>
+            <button class="modal-btn modal-btn-confirm" id="confirmAction">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrf_token = '{{ csrf_token }}';
+        const modal = document.getElementById('confirmModal');
+        const confirmMsg = document.getElementById('confirmMessage');
+        const confirmBtn = document.getElementById('confirmAction');
+        const cancelBtn = document.getElementById('cancelAction');
+        
+        // Mensajes de confirmación mejorados
+        const mensajes = {
+            'bloquear': '¿Está seguro que desea bloquear este usuario?\nEl usuario no podrá acceder al sistema ni realizar acciones hasta que sea desbloqueado.',
+            'desbloquear': '¿Está seguro que desea desbloquear este usuario?\nEl usuario podrá volver a acceder al sistema y realizar acciones.'
+        };
+    
+        // Tooltips para botones de acción
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = element.dataset.tooltip;
+                element.appendChild(tooltip);
+            });
+    
+            element.addEventListener('mouseleave', () => {
+                const tooltip = element.querySelector('.tooltip');
+                if (tooltip) tooltip.remove();
+            });
+        });
+    
+        // Modal mejorado
+        function showModal(message, callback) {
+            confirmMsg.textContent = message;
+            modal.style.display = 'block';
+            modal.classList.add('modal-open');
+            
+            const handleConfirm = () => {
+                modal.classList.remove('modal-open');
+                modal.style.display = 'none';
+                callback();
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+            
+            const handleCancel = () => {
+                modal.classList.remove('modal-open');
+                modal.style.display = 'none';
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+            
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+            
+            // Cerrar con Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') handleCancel();
+            });
+            
+            // Cerrar al hacer clic fuera
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) handleCancel();
+            });
+        }
+    
+        // Manejar acciones de usuario
+        document.querySelectorAll('.cambiar-estado').forEach(button => {
+            button.addEventListener('click', function() {
+                const usuarioId = this.dataset.usuarioId;
+                const accion = this.dataset.accion;
+                showModal(mensajes[accion], () => {
+                    realizarCambioEstado(usuarioId, accion, button);
+                });
+            });
+        });
+    
+        function realizarCambioEstado(usuarioId, accion, button) {
+            // Mostrar estado de carga
+            const originalHTML = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+            const formData = new FormData();
+            formData.append('accion', accion);
+            formData.append('csrfmiddlewaretoken', csrf_token);
+    
+            fetch(`/usuarios/${usuarioId}/cambiar-estado/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrf_token,
+                },
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    actualizarInterfazUsuario(usuarioId, data);
+                    showToast(data.mensaje, 'success');
+                } else {
+                    showToast(data.error || 'Error al procesar la solicitud', 'error');
+                    button.innerHTML = originalHTML;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Ocurrió un error al procesar la solicitud', 'error');
+                button.innerHTML = originalHTML;
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+    
+        function actualizarInterfazUsuario(usuarioId, data) {
+            const row = document.querySelector(`tr[data-usuario-id="${usuarioId}"]`);
+            const estadoBadge = row.querySelector('.estado-badge');
+            const actionsCell = row.querySelector('.actions-column');
+    
+            // Actualizar estado
+            estadoBadge.className = `estado-badge estado-${data.nuevo_estado}`;
+            estadoBadge.textContent = obtenerTextoEstado(data.nuevo_estado);
+    
+            // Actualizar botones según el estado
+            actualizarBotonesAccion(actionsCell, data, usuarioId);
+        }
+    
+    });
+</script>
+        
+{% endblock %}

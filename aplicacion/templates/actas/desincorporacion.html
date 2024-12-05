@@ -1,0 +1,95 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE DESINCORPORACIÓN</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_desincorporacion }}, se procede a la desincorporación del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr><th>Número de Identificación</th><td>{{ bien.numero_de_identificacion }}</td></tr>
+        <tr><th>Nombre del Bien</th><td>{{ bien.nombre }}</td></tr>
+        <tr><th>Cantidad</th><td>{{ cantidad_afectada }}</td></tr>
+        <tr><th>Valor de Desincorporación</th><td>{{ valor_desincorporacion }} Bs</td></tr>
+        {% if origen_nombre %}
+        <tr><th>Departamento de Origen</th><td>{{ origen_nombre }}</td></tr>
+        {% endif %}
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN:</h3>
+        <p>{{ descripcion }}</p>
+
+        {% if detalles.motivo_desincorporacion %}
+        <h3>MOTIVO DE LA DESINCORPORACIÓN:</h3>
+        <p>{{ detalles.motivo_desincorporacion }}</p>
+        {% endif %}
+
+        {% if detalles.explicacion_desincorporacion %}
+        <h3>EXPLICACIÓN ADICIONAL:</h3>
+        <p>{{ detalles.explicacion_desincorporacion }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>
+            {% if origen_departamento %}
+                {{ origen_departamento.nombre_departamento }}
+            {% elif origen_unidad %}
+                {{ origen_unidad.nombre }}
+            {% else %}
+                DEPARTAMENTO DE BIENES
+            {% endif %}
+        </p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>DEPARTAMENTO DE BIENES</p>
+    </div>
+</div>
+
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+
+<style>
+    .property-table {
+        width: 100%;
+        margin: 20px 0;
+        border-collapse: collapse;
+    }
+    .property-table th, .property-table td {
+        padding: 8px;
+        border: 1px solid #000;
+    }
+    .property-table th {
+        width: 30%;
+        background-color: #f5f5f5;
+    }
+    .details {
+        margin: 20px 0;
+    }
+    .details h3 {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .details p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+        text-align: justify;
+    }
+</style>
+{% endblock %}

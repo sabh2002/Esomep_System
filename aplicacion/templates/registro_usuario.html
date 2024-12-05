@@ -1,0 +1,661 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: white;
+        padding: 1.5rem;
+        border-bottom: none;
+        position: relative;
+    }
+
+    .card-header h2 {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin: 0;
+        text-align: center;
+    }
+
+    .card-body {
+        padding: 2rem;
+        background-color: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        height: 45px;
+        background-color: #f8f9fa;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        background-color: #fff;
+    }
+
+    .form-control:disabled,
+    .form-select:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+    .input-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        min-width: 140px;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .alert-danger {
+        background-color: #fff2f2;
+        border-left: 4px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .required label:after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .form-section {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        color: #003366;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #003366;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.4rem;
+    }
+</style>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Registro de Usuario</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" id="registroForm" novalidate>
+                {% csrf_token %}
+
+                <!-- Información Personal -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Información Personal</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group {% if form.cedula.field.required %}required{% endif %}">
+                                <label for="{{ form.cedula.id_for_label }}" class="form-label">
+                                    {{ form.cedula.label }}
+                                </label>
+                                <input type="text" 
+                                       name="cedula" 
+                                       id="{{ form.cedula.id_for_label }}"
+                                       class="form-control {% if form.cedula.errors %}is-invalid{% endif %}"
+                                       value="{{ form.cedula.value|default:'' }}"
+                                       required>
+                                {% for error in form.cedula.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group {% if form.email.field.required %}required{% endif %}">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    {{ form.email.label }}
+                                </label>
+                                <input type="email" 
+                                       name="email" 
+                                       id="{{ form.email.id_for_label }}"
+                                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                       value="{{ form.email.value|default:'' }}"
+                                       required>
+                                {% for error in form.email.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group {% if form.nombres.field.required %}required{% endif %}">
+                                <label for="{{ form.nombres.id_for_label }}" class="form-label">
+                                    {{ form.nombres.label }}
+                                </label>
+                                <input type="text" 
+                                       name="nombres" 
+                                       id="{{ form.nombres.id_for_label }}"
+                                       class="form-control {% if form.nombres.errors %}is-invalid{% endif %}"
+                                       value="{{ form.nombres.value|default:'' }}"
+                                       required>
+                                {% for error in form.nombres.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group {% if form.apellidos.field.required %}required{% endif %}">
+                                <label for="{{ form.apellidos.id_for_label }}" class="form-label">
+                                    {{ form.apellidos.label }}
+                                </label>
+                                <input type="text" 
+                                       name="apellidos" 
+                                       id="{{ form.apellidos.id_for_label }}"
+                                       class="form-control {% if form.apellidos.errors %}is-invalid{% endif %}"
+                                       value="{{ form.apellidos.value|default:'' }}"
+                                       required>
+                                {% for error in form.apellidos.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                            {{ form.telefono.label }}
+                        </label>
+                        <input type="tel" 
+                               name="telefono" 
+                               id="{{ form.telefono.id_for_label }}"
+                               class="form-control {% if form.telefono.errors %}is-invalid{% endif %}"
+                               value="{{ form.telefono.value|default:'' }}">
+                        {% for error in form.telefono.errors %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+<!-- Reemplaza la sección de Asignación en el template -->
+<div class="form-section">
+    <h3 class="form-section-title">Asignación y Rol</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.id_gerencia.id_for_label }}" class="form-label">
+                    {{ form.id_gerencia.label }}
+                </label>
+                <select name="id_gerencia" 
+                        id="{{ form.id_gerencia.id_for_label }}"
+                        class="form-select {% if form.id_gerencia.errors %}is-invalid{% endif %}">
+                    <option value="">Seleccione una Gerencia</option>
+                    {% for gerencia in form.fields.id_gerencia.queryset %}
+                        <option value="{{ gerencia.id_gerencia }}" 
+                            {% if form.id_gerencia.value|stringformat:"s" == gerencia.id_gerencia|stringformat:"s" %}selected{% endif %}>
+                            {{ gerencia.codigo }} - {{ gerencia.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% for error in form.id_gerencia.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.id_departamentos.id_for_label }}" class="form-label">
+                    {{ form.id_departamentos.label }}
+                </label>
+                <select name="id_departamentos" 
+                        id="{{ form.id_departamentos.id_for_label }}"
+                        class="form-select {% if form.id_departamentos.errors %}is-invalid{% endif %}">
+                    <option value="">Seleccione un Departamento</option>
+                    {% for departamento in form.fields.id_departamentos.queryset %}
+                        <option value="{{ departamento.id_departamentos }}"
+                            {% if form.id_departamentos.value|stringformat:"s" == departamento.id_departamentos|stringformat:"s" %}selected{% endif %}>
+                            {{ departamento.codigo_departamento }} - {{ departamento.nombre_departamento }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% for error in form.id_departamentos.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <label for="{{ form.id_rol_del_usuario.id_for_label }}" class="form-label">
+            {{ form.id_rol_del_usuario.label }}
+        </label>
+        <select name="id_rol_del_usuario" 
+                id="{{ form.id_rol_del_usuario.id_for_label }}"
+                class="form-select {% if form.id_rol_del_usuario.errors %}is-invalid{% endif %}"
+                required>
+            <option value="">Seleccione un Rol</option>
+            {% for rol in form.fields.id_rol_del_usuario.queryset %}
+                <option value="{{ rol.id_rol_del_usuario }}"
+                    {% if form.id_rol_del_usuario.value|stringformat:"s" == rol.id_rol_del_usuario|stringformat:"s" %}selected{% endif %}>
+                    {{ rol.nombre_rol }}
+                </option>
+            {% endfor %}
+        </select>
+        {% for error in form.id_rol_del_usuario.errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+</div>
+
+                <!-- Contraseña -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Contraseña</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label for="{{ form.contrasena.id_for_label }}" class="form-label">
+                                    {{ form.contrasena.label }}
+                                </label>
+                                <input type="password" 
+                                       name="contrasena" 
+                                       id="{{ form.contrasena.id_for_label }}"
+                                       class="form-control {% if form.contrasena.errors %}is-invalid{% endif %}"
+                                       required>
+                                {% for error in form.contrasena.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label for="confirmar_contrasena" class="form-label">
+                                    Confirmar Contraseña
+                                </label>
+                                <input type="password" 
+                                       name="confirmar_contrasena" 
+                                       id="confirmar_contrasena"
+                                       class="form-control {% if form.confirmar_contrasena.errors %}is-invalid{% endif %}"
+                                       required>
+                                {% for error in form.confirmar_contrasena.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <div class="buttons-container">
+                    <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registroForm');
+        const gerenciaSelect = document.querySelector('[name="id_gerencia"]');
+        const departamentoSelect = document.querySelector('[name="id_departamentos"]');
+    
+        // Función para validar cédula
+        function validarCedula(valor) {
+            if (!/^\d+$/.test(valor)) {
+                return 'La cédula solo debe contener números';
+            }
+            if (valor.length < 7 || valor.length > 10) {
+                return 'La cédula debe tener entre 7 y 10 dígitos';
+            }
+            return '';
+        }
+    
+        // Función para validar email
+        function validarEmail(valor) {
+            const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!regex.test(valor)) {
+                return 'Por favor ingrese un correo electrónico válido';
+            }
+            return '';
+        }
+    
+        // Función para validar teléfono
+        function validarTelefono(valor) {
+            const cleaned = valor.replace(/\D/g, '');
+            if (cleaned.length < 10) {
+                return 'El número de teléfono debe tener al menos 10 dígitos';
+            }
+            return '';
+        }
+    
+        // Función para mostrar errores
+        function mostrarError(input, mensaje) {
+            const errorDiv = input.nextElementSibling?.classList.contains('alert-danger') 
+                ? input.nextElementSibling 
+                : document.createElement('div');
+            
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.textContent = mensaje;
+            
+            if (!input.nextElementSibling?.classList.contains('alert-danger')) {
+                input.parentNode.insertBefore(errorDiv, input.nextSibling);
+            }
+            
+            input.classList.add('is-invalid');
+        }
+    
+        // Función para limpiar errores
+        function limpiarError(input) {
+            const errorDiv = input.nextElementSibling;
+            if (errorDiv?.classList.contains('alert-danger')) {
+                errorDiv.remove();
+            }
+            input.classList.remove('is-invalid');
+        }
+    
+        // Manejar la selección exclusiva entre gerencia y departamento
+        function toggleSelects(selectedType) {
+            if (selectedType === 'gerencia') {
+                departamentoSelect.value = '';
+                departamentoSelect.disabled = true;
+                gerenciaSelect.disabled = false;
+            } else if (selectedType === 'departamento') {
+                gerenciaSelect.value = '';
+                gerenciaSelect.disabled = true;
+                departamentoSelect.disabled = false;
+            } else {
+                departamentoSelect.disabled = false;
+                gerenciaSelect.disabled = false;
+            }
+        }
+    
+        if (gerenciaSelect && departamentoSelect) {
+            gerenciaSelect.addEventListener('change', function() {
+                if (this.value) {
+                    toggleSelects('gerencia');
+                } else {
+                    toggleSelects('none');
+                }
+            });
+    
+            departamentoSelect.addEventListener('change', function() {
+                if (this.value) {
+                    toggleSelects('departamento');
+                } else {
+                    toggleSelects('none');
+                }
+            });
+    
+            // Establecer estado inicial
+            if (gerenciaSelect.value) {
+                toggleSelects('gerencia');
+            } else if (departamentoSelect.value) {
+                toggleSelects('departamento');
+            }
+        }
+    
+        // Validación en tiempo real de los campos
+        const cedulaInput = document.querySelector('[name="cedula"]');
+        const emailInput = document.querySelector('[name="email"]');
+        const telefonoInput = document.querySelector('[name="telefono"]');
+        const contrasenaInput = document.querySelector('[name="contrasena"]');
+        const confirmarContrasenaInput = document.querySelector('[name="confirmar_contrasena"]');
+    
+        cedulaInput?.addEventListener('input', function() {
+            const error = validarCedula(this.value);
+            if (error) {
+                mostrarError(this, error);
+            } else {
+                limpiarError(this);
+            }
+        });
+    
+        emailInput?.addEventListener('input', function() {
+            const error = validarEmail(this.value);
+            if (error) {
+                mostrarError(this, error);
+            } else {
+                limpiarError(this);
+            }
+        });
+    
+        telefonoInput?.addEventListener('input', function() {
+            const error = validarTelefono(this.value);
+            if (error) {
+                mostrarError(this, error);
+            } else {
+                limpiarError(this);
+            }
+        });
+    
+        // Validación de contraseñas
+        function validarContrasenas() {
+            const contrasena = contrasenaInput.value;
+            const confirmContrasena = confirmarContrasenaInput.value;
+    
+            if (contrasena && confirmContrasena) {
+                if (contrasena !== confirmContrasena) {
+                    mostrarError(confirmarContrasenaInput, 'Las contraseñas no coinciden');
+                    return false;
+                } else {
+                    limpiarError(confirmarContrasenaInput);
+                    return true;
+                }
+            }
+            return true;
+        }
+    
+        contrasenaInput?.addEventListener('input', validarContrasenas);
+        confirmarContrasenaInput?.addEventListener('input', validarContrasenas);
+    
+        // Validación del formulario antes de enviar
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+            
+            // Validar campos requeridos
+            form.querySelectorAll('[required]').forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    mostrarError(field, 'Este campo es requerido');
+                }
+            });
+    
+            // Validar cédula
+            if (cedulaInput && cedulaInput.value) {
+                const cedulaError = validarCedula(cedulaInput.value);
+                if (cedulaError) {
+                    isValid = false;
+                    mostrarError(cedulaInput, cedulaError);
+                }
+            }
+    
+            // Validar email
+            if (emailInput && emailInput.value) {
+                const emailError = validarEmail(emailInput.value);
+                if (emailError) {
+                    isValid = false;
+                    mostrarError(emailInput, emailError);
+                }
+            }
+    
+            // Validar teléfono
+            if (telefonoInput && telefonoInput.value) {
+                const telefonoError = validarTelefono(telefonoInput.value);
+                if (telefonoError) {
+                    isValid = false;
+                    mostrarError(telefonoInput, telefonoError);
+                }
+            }
+    
+            // Validar que se haya seleccionado una gerencia o un departamento
+            if (!gerenciaSelect.value && !departamentoSelect.value) {
+                isValid = false;
+                mostrarError(gerenciaSelect, 'Debe seleccionar una gerencia o un departamento');
+            }
+    
+            // Validar contraseñas
+            if (!validarContrasenas()) {
+                isValid = false;
+            }
+    
+            if (!isValid) {
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+        
+            // Si pasa todas las validaciones, enviar el formulario via AJAX
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = data.redirect_url;
+                        }
+                    });
+                } else {
+                    // Mostrar errores
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    
+                    // Limpiar errores anteriores
+                    form.querySelectorAll('.alert.alert-danger').forEach(error => error.remove());
+                    form.querySelectorAll('.is-invalid').forEach(field => field.classList.remove('is-invalid'));
+                    
+                    // Mostrar errores en los campos
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([field, errors]) => {
+                            const input = form.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                mostrarError(input, Array.isArray(errors) ? errors.join(', ') : errors);
+                                // Hacer scroll al primer error
+                                if (field === Object.keys(data.errors)[0]) {
+                                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }
+                            // Log para depuración
+                            console.log(`Campo: ${field}, Errores:`, errors);
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Hubo un error al procesar la solicitud',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

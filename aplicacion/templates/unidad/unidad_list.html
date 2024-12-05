@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+    }
+
+    .page-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 2em;
+        font-weight: 400;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        color: #003366;
+        margin: 0;
+        font-size: 1.5em;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+        color: white;
+        text-decoration: none;
+    }
+
+    .search-container {
+        background: white;
+        padding: 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .input-group {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px 12px;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25);
+    }
+
+    .btn-outline-secondary {
+        border-color: #ced4da;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #003366;
+        border-color: #003366;
+        color: white;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 500;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0,0,0,.02);
+    }
+
+    .actions-column {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 3px;
+        margin-left: 5px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        color: white;
+        text-decoration: none;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+    }
+
+    .page-link {
+        color: #003366;
+        padding: 8px 12px;
+        text-decoration: none;
+        border: 1px solid #dee2e6;
+        margin: 0 2px;
+    }
+
+    .page-item.active .page-link {
+        background-color: #003366;
+        border-color: #003366;
+        color: white;
+    }
+
+    .page-link:hover {
+        background-color: #e9ecef;
+        text-decoration: none;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Registro de Unidades Organizacionales</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Listado de Unidades</h2>
+            <a href="{% url 'unidad_create' %}" class="btn btn-primary">Nueva Unidad</a>
+        </div>
+
+        <div class="search-container">
+            <form method="get">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Buscar unidad..." 
+                           value="{{ request.GET.search }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblUnidades" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unidad in unidades %}
+                        <tr>
+                            <td>{{ unidad.id_unidad }}</td>
+                            <td>{{ unidad.codigo }}</td>
+                            <td>{{ unidad.nombre }}</td>
+                            <td>{{ unidad.descripcion|truncatechars:50 }}</td>
+                            <td class="actions-column">
+                                <a href="{% url 'unidad_update' unidad.id_unidad %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No hay unidades organizacionales registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

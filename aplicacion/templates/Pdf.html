@@ -1,0 +1,78 @@
+<style>
+    /* Estilos CSS para tu PDF */
+    @page {
+        size: landscape;
+        margin: 10mm;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        font-size: 11px;
+    }
+    header {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: auto;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: left;
+        font-size: 10px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+{% load static %}
+</head>
+<body>
+<header>
+
+</header>
+    
+<h1>Lista de Bienes</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Grupo</th>
+            <th>Subgrupo</th>
+            <th>Sección</th>
+            <th>Concepto de Movimiento</th>
+            <th>Cantidad</th>
+            <th>Número de Identificación</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Incorporaciones</th>
+            <th>Desincorporación</th>
+            <th>Fecha de Registro</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bien in bienes %}
+        <tr>
+            <td>{{ bien.id_grupo|default_if_none:"" }}</td>
+            <td>{{ bien.id_subgrupo|default_if_none:"" }}</td>
+            <td>{{ bien.id_seccion_subgrupo|default_if_none:"--" }}</td>
+            <td>{{ bien.id_concepto_de_movimiento|default_if_none:"" }}</td>
+            <td>{{ bien.stock.cantidad_total|default_if_none:"" }}</td>
+            <td>{{ bien.numero_de_identificacion|default_if_none:"" }}</td>
+            <td>{{ bien.nombre|default_if_none:"" }}</td>
+            <td>{{ bien.observacion|default_if_none:"" }}</td>
+            <td>{{ bien.incorporacion|default_if_none:"" }}</td>
+            <td>{{ bien.desincorporacion|default_if_none:"" }}</td>
+            <td>{{ bien.fecha_de_registro|default_if_none:"" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

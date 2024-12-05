@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load aplicacion_filters %}
+
+{% block content %}
+<style>
+    /* Estilos generales */
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Estilos de la tarjeta */
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background-color: #003366;
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+        padding: 20px;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    .card-body {
+        background-color: #fff;
+        padding: 30px;
+    }
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e3e6f0;
+        padding: 1rem;
+    }
+
+    /* Estilos de formulario */
+    .form-label {
+        font-weight: 600;
+        color: #003366;
+        margin-bottom: 0.5rem;
+    }
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25);
+    }
+
+    /* Lista de elementos seleccionados */
+    .selected-items {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border: 2px dashed #003366;
+        display: none;
+    }
+    .selected-items.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    .selected-items-title {
+        color: #003366;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .selected-items-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .selected-item {
+        background-color: #e6f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .selected-item-remove {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 0.2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .selected-item-remove:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    /* Tabla de bienes */
+    .bienes-list {
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin-bottom: 0;
+    }
+    .table th {
+        background-color: #003366;
+        color: #fff;
+        font-weight: 600;
+        padding: 1rem;
+        border: none;
+    }
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .table-hover tbody tr.selected {
+        background-color: #e6f3ff;
+    }
+
+    /* Botones */
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #002244;
+        border-color: #002244;
+        transform: translateY(-1px);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    .btn-primary:disabled {
+        background-color: #cccccc;
+        border-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    /* Badges y alertas */
+    .badge {
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .alert {
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .alert-info {
+        background-color: #e6f3ff;
+        border-color: #b8daff;
+        color: #004085;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    /* Checkbox personalizado */
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        margin-top: 0.25em;
+        cursor: pointer;
+        border: 2px solid #003366;
+    }
+    .form-check-input:checked {
+        background-color: #003366;
+        border-color: #003366;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(-10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 10px;
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .selected-item {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-exchange-alt mr-2"></i>
+                        Asignar Bienes 
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Lista de elementos seleccionados -->
+                    <div class="selected-items" id="selectedItems">
+                        <div class="selected-items-title">
+                            <i class="fas fa-clipboard-check"></i>
+                            Bienes Seleccionados (<span id="selectedCount">0</span>)
+                        </div>
+                        <ul class="selected-items-list" id="selectedItemsList"></ul>
+                    </div>
+
+                    <form method="post" id="asignarBienesForm">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-building mr-2"></i>
+                                        Seleccionar Destino
+                                    </label>
+                                    <select name="destino" id="id_destino" class="form-control select2">
+                                        <optgroup label="Unidades Organizacionales">
+                                            {% for unidad in unidades_organizacionales %}
+                                                <option value="U-{{ unidad.id_unidad }}">
+                                                    {{ unidad.codigo }} - {{ unidad.nombre }}
+                                                </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        <optgroup label="Departamentos">
+                                            {% for departamento in departamentos %}
+                                                <option value="D-{{ departamento.id_departamentos }}">
+                                                    {{ departamento.codigo_departamento }} - {{ departamento.nombre_departamento }}
+                                                    ({{ departamento.UnidadOrganizacional.nombre }})
+                                                </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="bienesSearch" class="form-label">
+                                <i class="fas fa-search mr-2"></i>
+                                Buscar Bienes
+                            </label>
+                            <input type="text" 
+                                   id="bienesSearch" 
+                                   class="form-control mb-3" 
+                                   placeholder="Buscar por nombre o código...">
+                            
+                            <div class="bienes-list">
+                                <table class="table table-hover" id="bienesTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">
+                                                <i class="fas fa-check-square"></i>
+                                            </th>
+                                            <th>Código</th>
+                                            <th>Nombre del Bien</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in bienes_con_stock %}
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" 
+                                                               name="bienes" 
+                                                               value="{{ item.bien.id_bienes }}"
+                                                               id="id_bienes_{{ forloop.counter0 }}"
+                                                               class="form-check-input"
+                                                               data-code="{{ item.bien.numero_de_identificacion }}"
+                                                               data-name="{{ item.bien.nombre }}">
+                                                    </div>
+                                                </td>
+                                                <td>{{ item.bien.numero_de_identificacion }}</td>
+                                                <td>{{ item.bien.nombre }}</td>
+                                                <td>
+                                                    <span class="badge badge-success">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        Disponible
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <i class="fas fa-info-circle mr-2"></i>
+                                                    No hay bienes disponibles para asignar.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                            <i class="fas fa-save mr-2"></i>
+                            Asignar Bienes
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <div class="alert alert-info mb-0" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        Número de bienes disponibles: <strong>{{ bienes_count }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('asignarBienesForm');
+    const bienesSearch = document.getElementById('bienesSearch');
+    const bienesTable = document.getElementById('bienesTable');
+    const submitBtn = document.getElementById('submitBtn');
+    const selectedItems = document.getElementById('selectedItems');
+    const selectedItemsList = document.getElementById('selectedItemsList');
+    const selectedCount = document.getElementById('selectedCount');
+
+    function updateSelectedItems() {
+        const checkedBoxes = form.querySelectorAll('input[name="bienes"]:checked');
+        selectedItemsList.innerHTML = '';
+        selectedCount.textContent = checkedBoxes.length;
+
+        if (checkedBoxes.length > 0) {
+            selectedItems.classList.add('active');
+            checkedBoxes.forEach(checkbox => {
+                const code = checkbox.dataset.code;
+                const name = checkbox.dataset.name;
+                
+                const li = document.createElement('li');
+                li.className = 'selected-item';
+                li.innerHTML = `
+                    <i class="fas fa-box mr-2"></i>
+                    <span>${code} - ${name}</span>
+                    <button type="button" class="selected-item-remove" 
+                            onclick="removeSelection('${checkbox.id}')"
+                            title="Remover selección">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                selectedItemsList.appendChild(li);
+            });
+        } else {
+            selectedItems.classList.remove('active');
+        }
+
+        submitBtn.disabled = checkedBoxes.length === 0;
+    }
+
+    function filterBienes() {
+        const searchTerm = bienesSearch.value.toLowerCase();
+        const rows = bienesTable.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const code = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+            const name = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+            if (code.includes(searchTerm) || name.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    bienesSearch.addEventListener('input', filterBienes);
+
+    form.querySelectorAll('input[name="bienes"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const row = this.closest('tr');
+            row.classList.toggle('selected', this.checked);
+            updateSelectedItems();
+        });
+    });
+
+    // Función global para remover selección
+// Función global para remover selección
+window.removeSelection = function(checkboxId) {
+    const checkbox = document.getElementById(checkboxId);
+    if (checkbox) {
+        checkbox.checked = false;
+        checkbox.closest('tr').classList.remove('selected');
+        updateSelectedItems();
+    }
+};
+
+// Validación del formulario antes de enviar
+form.addEventListener('submit', function(e) {
+    const checkedBienes = form.querySelectorAll('input[name="bienes"]:checked');
+    const departamento = form.querySelector('select[name="departamento"]');
+    
+    if (checkedBienes.length === 0) {
+        e.preventDefault();
+        showToast('Por favor, seleccione al menos un bien para asignar.', 'warning');
+        return;
+    }
+
+    if (!departamento.value) {
+        e.preventDefault();
+        showToast('Por favor, seleccione un departamento.', 'warning');
+        return;
+    }
+});
+
+// Función para mostrar mensajes toast
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '1050';
+    toast.style.minWidth = '300px';
+    toast.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas ${type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'} mr-2"></i>
+            <div>${message}</div>
+            <button type="button" class="close ml-auto" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // Remover el toast después de 3 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 150);
+    }, 3000);
+}
+
+// Mejorar la experiencia de búsqueda
+bienesSearch.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        this.value = '';
+        filterBienes();
+    }
+});
+
+// Agregar tooltip para los elementos deshabilitados
+submitBtn.addEventListener('mouseenter', function() {
+    if (this.disabled) {
+        showToast('Seleccione al menos un bien para habilitar la asignación', 'warning');
+    }
+});
+
+// Manejar los mensajes de alerta existentes
+const alerts = document.querySelectorAll('.alert:not(.position-fixed)');
+alerts.forEach(alert => {
+    setTimeout(() => {
+        alert.classList.remove('show');
+        setTimeout(() => {
+            alert.remove();
+        }, 150);
+    }, 5000);
+});
+
+// Inicialización
+updateSelectedItems();
+
+// Agregar atajos de teclado
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + F para enfocar la búsqueda
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        bienesSearch.focus();
+    }
+    
+    // Esc para limpiar la búsqueda
+    if (e.key === 'Escape' && document.activeElement === bienesSearch) {
+        bienesSearch.value = '';
+        filterBienes();
+        bienesSearch.blur();
+    }
+});
+});
+</script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: 'Seleccione una Unidad o Departamento',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}

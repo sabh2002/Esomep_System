@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .page-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .page-title {
+        font-size: 2.5rem;
+        margin: 0;
+        text-align: center;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        color: #003366;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .input-group {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .input-group-prepend {
+        display: flex;
+    }
+    
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        color: #495057;
+    }
+    
+    .input-group .form-control {
+        border-radius: 0 4px 4px 0;
+        flex: 1;
+    }
+
+    /* Estilos para mensajes */
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    /* Estilos de la tabla y DataTables */
+    .table thead th {
+        background-color: #003366;
+        color: white;
+        padding: 12px;
+        font-weight: 500;
+    }
+    .table tbody td {
+        vertical-align: middle;
+        padding: 12px;
+    }
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Estilos de botones */
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        border: none;
+    }
+    .btn-success { background-color: #28a745; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-primary { background-color: #003366; color: white; }
+    .btn-info { background-color: #17a2b8; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        opacity: 0.9;
+    }
+
+    /* Modal styles */
+    .modal-custom {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        animation: fadeIn 0.3s ease;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: none;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        animation: slideIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slideIn {
+        from { transform: translateY(-20%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* DataTables custom styles */
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px 12px;
+        margin-left: 8px;
+    }
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px 30px 6px 12px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 4px;
+        border-radius: 4px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #003366 !important;
+        color: white !important;
+        border: none;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .text-muted {
+        color: #6c757d;
+        font-size: 0.875em;
+        margin-top: 4px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #dee2e6;
+        padding-top: 1rem;
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid #003366;
+        animation: spin 1s linear infinite;
+        margin-left: 10px;
+        display: inline-block;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .processing {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .processing .spinner {
+        display: inline-block;
+    }
+
+    .btn .spinner {
+        display: none;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Bienes en Enajenación</h1>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            {% if bienes_resguardados %}
+                <table id="bienesTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Bien</th>
+                            <th>Número de Identificación</th>
+                            <th>Cantidad Resguardada</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bien in bienes_resguardados %}
+                        <tr>
+                            <td>{{ bien.nombre }}</td>
+                            <td>{{ bien.numero_de_identificacion }}</td>
+                            <td>{{ bien.stock.cantidad_resguardada }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" 
+                                            onclick="mostrarModalDevolucion({{ bien.id_bienes }}, '{{ bien.nombre }}')" 
+                                            class="btn btn-primary">
+                                        <i class="fas fa-undo"></i> Devolver
+                                    </button>
+                                    <button type="button" onclick="mostrarModalDesincorporacion({{ bien.id_bienes }})" class="btn btn-danger">
+                                        <i class="fas fa-trash-alt"></i> Desincorporar
+                                    </button>
+                                    <a href="{% url 'historial_bien' bien.id_bienes %}" class="btn btn-info">
+                                        <i class="fas fa-history"></i> Historial
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No hay bienes resguardados en este momento.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div id="modalDevolucion" class="modal-custom">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirmar Devolución</h3>
+        </div>
+        <div class="modal-body">
+            <div class="info-section mb-4" style="background-color: #f8f9fa; padding: 15px; border-radius: 6px;">
+                <h4 id="bienDevolucionNombre" class="mb-3" style="color: #003366;"></h4>
+                <div id="departamentoInfo">
+                    <div class="spinner"></div> Cargando información del departamento...
+                </div>
+            </div>
+            
+            <form id="formDevolucion" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="bien_id" id="bienIdDevolucion">
+                <input type="hidden" name="accion" value="devolver">
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalDevolucion')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirmarDevolucion">
+                        <i class="fas fa-check"></i> Confirmar Devolución
+                        <span class="spinner"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalDesincorporacion" class="modal-custom">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirmar Desincorporación</h3>
+        </div>
+        <div class="modal-body">
+            <h4 id="bienDesincorporacionNombre" class="mb-3" style="color: #003366;"></h4>
+            
+            <form id="formDesincorporacion" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="bien_id" id="bienIdDesincorporacion">
+                <input type="hidden" name="accion" value="desincorporar">
+                
+                <div class="form-group">
+                    <label for="valorDesincorporacion">Valor de Desincorporación (Bs): *</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Bs</span>
+                        </div>
+                        <input type="text" 
+                                class="form-control" 
+                                id="valorDesincorporacion" 
+                                name="valor_desincorporacion" 
+                                placeholder="0.00"
+                                required>
+                    </div>
+                    <small class="text-muted">Ingrese el valor monetario con decimales</small>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalDesincorporacion')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger" id="btnConfirmarDesincorporacion">
+                        <i class="fas fa-check"></i> Confirmar Desincorporación
+                        <span class="spinner"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<!-- Scripts necesarios -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/r-2.2.9/datatables.min.css"/>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/r-2.2.9/datatables.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar DataTable
+        $('#bienesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            responsive: true,
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    className: 'btn btn-success',
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    className: 'btn btn-danger',
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    }
+                }
+            ]
+        });
+    });
+    
+    // Función para formatear números
+    function formatearNumero(valor) {
+        // Primero limpiamos el valor de caracteres no deseados
+        const valorLimpio = valor.replace(/[^\d,]/g, '');
+        return valorLimpio;
+    }
+    
+    // Función para mostrar modal de devolución
+    async function mostrarModalDevolucion(bienId, nombreBien) {
+        const modal = document.getElementById('modalDevolucion');
+        document.getElementById('bienIdDevolucion').value = bienId;
+        document.getElementById('bienDevolucionNombre').textContent = 'Bien: ' + nombreBien;
+        
+        modal.style.display = 'block';
+        
+        document.getElementById('departamentoInfo').innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="spinner-border text-primary mr-2" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <span>Obteniendo información del departamento...</span>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch(`/api/obtener_departamento_destino/${bienId}/`);
+            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('departamentoInfo').innerHTML = `
+                    <div class="alert alert-info">
+                        <h5 class="mb-2">Información de Devolución</h5>
+                        <p class="mb-1"><strong>Departamento destino:</strong> ${data.departamento_nombre}</p>
+                        <p class="mb-1"><strong>Última fecha de asignación:</strong> ${data.fecha_asignacion}</p>
+                        <p class="mb-0"><small>El bien será devuelto a su departamento original de asignación.</small></p>
+                    </div>
+                `;
+                const btnConfirmar = document.getElementById('btnConfirmarDevolucion');
+                btnConfirmar.style.display = 'block';
+                btnConfirmar.onclick = () => {
+                    return confirm(`¿Está seguro de devolver el bien "${nombreBien}" al departamento ${data.departamento_nombre}?`);
+                };
+            } else {
+                document.getElementById('departamentoInfo').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.message}
+                        <p class="mb-0 mt-2">
+                            <small>No se puede proceder con la devolución sin un departamento de destino válido.</small>
+                        </p>
+                    </div>
+                `;
+                document.getElementById('btnConfirmarDevolucion').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('departamentoInfo').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> 
+                    Error al obtener la información del departamento. Por favor, intente nuevamente.
+                </div>
+            `;
+            document.getElementById('btnConfirmarDevolucion').style.display = 'none';
+        }
+    }
+    
+    // Función para mostrar modal de desincorporación
+    function mostrarModalDesincorporacion(bienId, nombreBien) {
+        document.getElementById('bienIdDesincorporacion').value = bienId;
+        document.getElementById('bienDesincorporacionNombre').textContent = 'Bien: ' + nombreBien;
+        document.getElementById('valorDesincorporacion').value = '';
+        document.getElementById('modalDesincorporacion').style.display = 'block';
+    }
+    
+    // Función para cerrar modales
+    function cerrarModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        
+        // Limpiar formularios
+        if (modalId === 'modalDesincorporacion') {
+            document.getElementById('valorDesincorporacion').value = '';
+        }
+        
+        // Remover mensajes de error
+        const errorMessages = modal.querySelectorAll('.alert-danger');
+        errorMessages.forEach(msg => msg.remove());
+        
+        // Resetear estado de botones
+        const buttons = modal.querySelectorAll('button[type="submit"]');
+        buttons.forEach(button => {
+            button.disabled = false;
+            button.classList.remove('processing');
+        });
+    }
+    
+    // Evento para formatear el valor mientras se escribe
+    document.getElementById('valorDesincorporacion').addEventListener('keypress', function(e) {
+        // Permitir números, punto, coma y teclas de control
+        if (!/[\d.,]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+        }
+
+        
+        // Solo permitir una coma
+        if (e.key === ',' && this.value.includes(',')) {
+            e.preventDefault();
+        }
+    });
+    
+    // Manejar envío del formulario de devolución
+    document.getElementById('formDevolucion').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const btnSubmit = this.querySelector('button[type="submit"]');
+        btnSubmit.classList.add('processing');
+        btnSubmit.disabled = true;
+        
+        try {
+            const formData = new FormData(this);
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+    
+            const data = await response.json();
+            
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    cerrarModal('modalDevolucion');
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un error al procesar la solicitud'
+            });
+        } finally {
+            btnSubmit.classList.remove('processing');
+            btnSubmit.disabled = false;
+        }
+    });
+    
+    // Manejar envío del formulario de desincorporación
+    document.getElementById('formDesincorporacion').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const btnSubmit = this.querySelector('button[type="submit"]');
+        const valorInput = document.getElementById('valorDesincorporacion');
+        let valor = valorInput.value.trim();
+        
+        // Validar que haya un valor
+        if (!valor) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Valor Requerido',
+                text: 'Por favor, ingrese un valor para la desincorporación.',
+                showConfirmButton: true
+            });
+            return;
+        }
+        
+        try {
+            btnSubmit.classList.add('processing');
+            btnSubmit.disabled = true;
+            
+            // No necesitamos validación adicional aquí, enviamos el valor tal cual
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            formData.append('bien_id', document.getElementById('bienIdDesincorporacion').value);
+            formData.append('accion', 'desincorporar');
+            formData.append('valor_desincorporacion', valor);
+            
+            const response = await fetch(window.location.pathname, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+    
+            const data = await response.json();
+            
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: `${data.message} Valor: ${valor} Bs`,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    cerrarModal('modalDesincorporacion');
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un error al procesar la solicitud'
+            });
+        } finally {
+            btnSubmit.classList.remove('processing');
+            btnSubmit.disabled = false;
+        }
+    });
+    
+    // Cerrar modales al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-custom')) {
+            cerrarModal(event.target.id);
+        }
+    };
+    </script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/r-2.2.9/datatables.min.css"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/r-2.2.9/datatables.min.js"></script>
+    
+    {% endblock %}

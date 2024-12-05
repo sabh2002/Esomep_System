@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-container">
+    {% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="profile-header">
+        <h1>Mi Perfil</h1>
+        <button id="editProfileBtn" class="btn btn-primary">Editar Perfil</button>
+    </div>
+    <div class="profile-content">
+        <div class="profile-avatar">
+            {% if usuario.avatar %}
+                <img src="{{ usuario.avatar.url }}" alt="Avatar de {{ usuario.nombres }}">
+            {% else %}
+                <div class="avatar-placeholder">{{ usuario.nombres|first }}{{ usuario.apellidos|first }}</div>
+            {% endif %}
+        </div>
+        <form id="profileForm" method="POST" class="profile-details">
+            {% csrf_token %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <h3>Información Personal</h3>
+                    <p><strong>Cédula:</strong> <span id="cedula" class="non-editable">{{ usuario.cedula }}</span></p>
+                    <p><strong>Nombres:</strong> <span id="nombres" class="editable" data-name="nombres">{{ usuario.nombres }}</span></p>
+                    <p><strong>Apellidos:</strong> <span id="apellidos" class="editable" data-name="apellidos">{{ usuario.apellidos }}</span></p>
+                </div>
+                <div class="detail-item">
+                    <h3>Contacto</h3>
+                    <p><strong>Email:</strong> <span id="email" class="editable" data-name="email">{{ usuario.email }}</span></p>
+                    <p><strong>Teléfono:</strong> <span id="telefono" class="editable" data-name="telefono">{{ usuario.telefono }}</span></p>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <h3>Información Laboral</h3>
+                    <p><strong>Departamento:</strong> <span id="departamento" class="non-editable">{{ usuario.id_departamentos }}</span></p>
+                    <p><strong>Rol:</strong> <span id="rol" class="non-editable">{{ usuario.id_rol_del_usuario }}</span></p>
+                </div>
+                <div class="detail-item">
+                    <h3>Detalles de la Cuenta</h3>
+                    <p><strong>Fecha de registro:</strong> <span id="fechaRegistro" class="non-editable">{{ usuario.fecha_de_registro|date:"d/m/Y" }}</span></p>
+                    <p><strong>Estado:</strong> <span id="estado" class="status-badge non-editable {% if usuario.estado == 'activo' %}active{% else %}inactive{% endif %}">{{ usuario.estado }}</span></p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Se mantienen los mismos estilos */
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .alert-container {
+        margin-bottom: 20px;
+    }
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .profile-content {
+        display: flex;
+        gap: 20px;
+    }
+    .profile-avatar {
+        flex: 0 0 150px;
+    }
+    .profile-avatar img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: #3498db;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: bold;
+    }
+    .profile-details {
+        flex: 1;
+    }
+    .detail-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .detail-item {
+        flex: 1;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .detail-item h3 {
+        margin-top: 0;
+        color: #3498db;
+    }
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    .status-badge.active {
+        background-color: #2ecc71;
+        color: white;
+    }
+    .status-badge.inactive {
+        background-color: #e74c3c;
+        color: white;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+    .non-editable {
+        color: #6c757d;
+    }
+    .edit-input {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+    .alert {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById('editProfileBtn');
+        const editableFields = document.querySelectorAll('.profile-details .editable');
+    
+        editBtn.addEventListener('click', function() {
+            if (this.textContent === 'Editar Perfil') {
+                // Activar modo edición
+                editableFields.forEach(field => {
+                    const currentValue = field.textContent.trim();
+                    const input = document.createElement('input');
+                    input.type = field.id === 'email' ? 'email' : 'text';
+                    input.name = field.id;  // Usar el ID como nombre del campo
+                    input.value = currentValue;
+                    input.className = 'edit-input form-control';
+                    field.parentNode.replaceChild(input, field);
+                });
+    
+                this.textContent = 'Guardar Cambios';
+            } else {
+                saveChanges();
+            }
+        });
+    
+        function saveChanges() {
+            const formData = new FormData();
+            const inputs = document.querySelectorAll('.edit-input');
+            
+            // Limpiar errores previos
+            clearErrors();
+    
+            // Recolectar datos del formulario
+            inputs.forEach(input => {
+                formData.append(input.name, input.value.trim());
+            });
+    
+            // Agregar el token CSRF
+            formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    
+            // Deshabilitar el botón mientras se procesa
+            editBtn.disabled = true;
+            editBtn.textContent = 'Guardando...';
+    
+            // Enviar datos al servidor
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar la interfaz con los datos devueltos
+                    inputs.forEach(input => {
+                        const span = document.createElement('span');
+                        span.id = input.name;
+                        span.className = 'editable';
+                        span.textContent = data.data[input.name];
+                        input.parentNode.replaceChild(span, input);
+                    });
+    
+                    showAlert(data.message, 'success');
+                    editBtn.textContent = 'Editar Perfil';
+                } else {
+                    // Mostrar errores si existen
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([field, error]) => {
+                            if (error) {
+                                const input = document.querySelector(`input[name="${field}"]`);
+                                if (input) {
+                                    showFieldError(input, error);
+                                }
+                            }
+                        });
+                    }
+                    showAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error al actualizar el perfil', 'danger');
+            })
+            .finally(() => {
+                editBtn.disabled = false;
+                if (editBtn.textContent === 'Guardando...') {
+                    editBtn.textContent = 'Guardar Cambios';
+                }
+            });
+        }
+    
+        function clearErrors() {
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        }
+    
+        function showFieldError(input, message) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = message;
+            input.parentNode.appendChild(errorDiv);
+        }
+    
+        function showAlert(message, type) {
+            // Crear contenedor de alertas si no existe
+            let alertContainer = document.querySelector('.alert-container');
+            if (!alertContainer) {
+                alertContainer = document.createElement('div');
+                alertContainer.className = 'alert-container';
+                document.querySelector('.profile-container').insertBefore(
+                    alertContainer,
+                    document.querySelector('.profile-header')
+                );
+            }
+    
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+    
+            alertContainer.appendChild(alert);
+    
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        // Agregar estilos necesarios
+        const style = document.createElement('style');
+        style.textContent = `
+            .alert-container {
+                margin-bottom: 20px;
+            }
+            .invalid-feedback {
+                display: block;
+                color: #dc3545;
+                font-size: 0.875em;
+                margin-top: 0.25rem;
+            }
+            .edit-input.is-invalid {
+                border-color: #dc3545;
+                padding-right: calc(1.5em + 0.75rem);
+            }
+            .form-control:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+        `;
+        document.head.appendChild(style);
+    });
+    </script>
+{% endblock %}

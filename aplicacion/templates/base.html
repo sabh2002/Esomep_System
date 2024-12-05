@@ -1,0 +1,888 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Esomep</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    
+    <!-- Scripts fundamentales - Orden correcto -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <style>
+
+        .modal-header {
+        background-color: #dc3545;
+        color: white;
+        }
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-width-mini: 80px;
+            --topbar-height: 60px;
+            --primary-color: #ffffff;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3699ff;
+            --text-color: #333333;
+            --government-blue: #003366;
+            --government-light-blue: #0066cc;
+            --icon-size: 24px;
+            --hover-bg-color: rgba(54, 153, 255, 0.1);
+            --notification-color: #888888;
+            --icon-color: #333333;
+            --icon-hover-color: #0056b3;
+        }
+    
+
+    
+        .topbar, .barra-lateral {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+    
+        .barra-lateral {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            transition: width 0.3s ease;
+        }
+    
+        .mini-barra-lateral {
+            width: var(--sidebar-width-mini);
+        }
+    
+        .mini-barra-lateral + .topbar {
+            left: var(--sidebar-width-mini);
+        }
+    
+        .mini-barra-lateral + .topbar + main {
+            margin-left: var(--sidebar-width-mini);
+        }
+    
+        .logo {
+            width: 60px;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+        }
+    
+        .nombre-imagen {
+            width: 150px;
+            height: auto;
+            margin: 10px auto;
+            display: block;
+        }
+    
+        .navegacion ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+    
+        .navegacion ul li a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+    
+        .navegacion ul li a:hover {
+            background-color: var(--hover-bg-color);
+        }
+    
+        .icon-vertical, .icon-horizontal {
+            font-size: var(--icon-size);
+            min-width: var(--icon-size);
+            text-align: center;
+            margin-right: 10px;
+            color: var(--icon-color);
+            transition: color 0.3s ease;
+        }
+    
+        .mini-barra-lateral .navegacion ul li a {
+            justify-content: center;
+            padding: 10px 0;
+        }
+    
+        .mini-barra-lateral .navegacion ul li a .icon-vertical {
+            margin-right: 0;
+        }
+    
+        .mini-barra-lateral .navegacion ul li a span {
+            display: none;
+        }
+    
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+        }
+    
+        .notifications-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin-right: -10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+        
+        .notification-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            min-width: 18px;
+            height: 18px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+            }
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+        
+        .notifications-icon:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .notifications-icon ion-icon {
+            color: #dc3545;
+            font-size: 24px;
+        }
+    
+        .user-info-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+        }
+    
+        .user-info-container:hover {
+            background-color: var(--hover-bg-color);
+        }
+    
+        .user-info-container:hover .icon-horizontal {
+            color: var(--icon-hover-color);
+        }
+    
+        .department-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+    
+        .profile-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .user-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 20px;
+            top: var(--topbar-height);
+            background-color: var(--primary-color);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+    
+        .user-dropdown-content.show {
+            display: block;
+        }
+    
+        .user-dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        .user-dropdown-content a:hover {
+            background-color: var(--hover-bg-color);
+        }
+    
+        .user-dropdown-content a:hover .icon-horizontal {
+            color: var(--icon-hover-color);
+        }
+    
+        .user-info {
+            padding: 12px 16px;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            color: var(--government-blue);
+        }
+    
+        main {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            background-color: #eef0f3;
+        }
+    
+        @media (max-width: 768px) {
+            .barra-lateral {
+                width: var(--sidebar-width-mini);
+            }
+    
+            .topbar {
+                left: var(--sidebar-width-mini);
+            }
+    
+            main {
+                margin-left: var(--sidebar-width-mini);
+            }
+    
+            .department-name {
+                display: none;
+            }
+        }
+
+        .admin-dashboard {
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1400px;
+        }
+        
+        .dashboard-title {
+            color: #003366;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .dashboard-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(90deg, #003366, #0066cc);
+            border-radius: 2px;
+        }
+    
+        /* Resto de estilos se mantienen igual... */
+        
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #003366 0%, #004080 100%);
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 51, 102, 0.1);
+            min-height: 140px;
+        }
+        /* Estilos adicionales para el chat */
+.chat-widget-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
+  /* Resto de los estilos del chat... */
+  .chat-header {
+    background-color: #003366; /* Usar el mismo color que tu tema */
+  }
+  
+  /* Asegúrate de que los estilos coincidan con tu tema */
+  #chat-widget-root {
+    position: relative;
+    z-index: 1050;
+}
+
+.chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+
+.chat-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 300px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-button {
+    background-color: #003366;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+  .chat-input {
+    border: 1px solid #ddd;
+  }
+  
+  /* Ajustes para que coincida con el diseño de tu sitio */
+  .chat-panel {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  #chat-widget-root {
+    position: relative;
+    z-index: 1050;
+}
+.chat-widget-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+/* Asegurarse de que el chat esté por encima de otros elementos */
+.chat-widget-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+    height: calc(1.5em + 0.75rem);
+}
+        
+    </style>
+
+<!-- React y dependencias -->
+<script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<!-- Scripts fundamentales - Mantener este orden -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<!-- Agregar Select2 JS después de jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+</head>
+
+{% if messages %}
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    {% for message in messages %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header {% if message.tags %}bg-{{ message.tags }}{% endif %} text-white">
+            <strong class="me-auto">Notificación</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<body>
+
+
+    
+    <div class="barra-lateral">
+        <div class="nombre-pagina">
+            <img id="toggle-sidebar" class="logo" src="{% static 'imagenes/logo.png' %}" alt="Logo" />
+            <img src="{% static 'imagenes/logo2.png' %}" class="nombre-imagen" alt="Nombre" />
+        </div>
+        
+        <nav class="navegacion">
+            <ul>
+                <li>
+                    <a href="{% url 'index' %}">
+                        <ion-icon name="home-outline" class="icon-vertical"></ion-icon>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                {% if user.id_rol_del_usuario.nombre_rol == 'ADMIN_BIENES' %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <ion-icon name="cube-outline" class="icon-vertical"></ion-icon>
+                        <span>Bienes</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'bien_list' %}">Lista de Bienes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bien_create' %}">Agregar Bien</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <ion-icon name="list-outline" class="icon-vertical"></ion-icon>
+                        <span>Solicitud</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if user.is_authenticated %}
+                            <li><a class="dropdown-item" href="{% url 'crear_solicitud' %}">Nueva Solicitud</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lista_solicitudes' %}">Ver Solicitudes</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+                
+                {% if user.id_rol_del_usuario.nombre_rol == 'ADMIN_BIENES' %}
+                <li>
+                    <a href="{% url 'admin_dashboard' %}">
+                        <ion-icon name="people-outline" class="icon-vertical"></ion-icon>
+                        <span>Admin</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+
+    <div class="topbar">
+        <div class="user-dropdown">
+                {% if user.id_rol_del_usuario.nombre_rol == 'ADMIN_BIENES' %}
+            <a href="{% url 'admin_bienes_notificaciones' %}" class="notifications-icon">
+                <ion-icon name="notifications-outline" class="icon-horizontal"></ion-icon>
+                {% if has_unread_notifications %}
+                    <span class="notification-indicator">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+        {% else %}
+            <a href="{% url 'usuario_notificaciones' %}" class="notifications-icon">
+                <ion-icon name="notifications-outline" class="icon-horizontal"></ion-icon>
+                {% if has_unread_notifications %}
+                    <span class="notification-indicator">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+        {% endif %}
+            <div class="user-info-container" onclick="toggleDropdown()">
+                <span class="department-name">
+                    {% if user.id_departamentos %}
+                        {{ user.id_departamentos.nombre_departamento }}
+                    {% elif user.id_unidadOrganizacional %}
+                        {{ user.id_unidadOrganizacional.nombre }}
+                    {% else %}
+                        No asignado
+                    {% endif %}
+                </span>
+                <div class="profile-icon">
+                    <ion-icon name="person-circle-outline" class="icon-horizontal"></ion-icon>
+                </div>
+            </div>
+            <div id="userDropdown" class="user-dropdown-content">
+                <div class="user-info">
+                    {{ user.nombres }} {{ user.apellidos }}
+                </div>
+                <a href="{% url 'ver_mi_perfil' %}">
+                    <ion-icon name="person-outline" class="icon-horizontal"></ion-icon>
+                    Ver perfil
+                </a>
+                <a href="{% url 'logout' %}">
+                    <ion-icon name="log-out-outline" class="icon-horizontal"></ion-icon>
+                    Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+    
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Justo antes del cierre del body -->
+    <div id="chat-widget-root"></div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+        const toggleSidebar = document.getElementById("toggle-sidebar");
+        const barraLateral = document.querySelector(".barra-lateral");
+        const topbar = document.querySelector(".topbar");
+        const main = document.querySelector("main");
+        
+        toggleSidebar.addEventListener("click", () => {
+            barraLateral.classList.toggle("mini-barra-lateral");
+            topbar.classList.toggle("expanded");
+            main.classList.toggle("expanded");
+        });
+
+        $.extend($.fn.dataTable.defaults, {
+            language: {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros por página",
+                "sZeroRecords": "No se encontraron resultados",
+                "sInfo": "Mostrando _START_ al _END_ de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando 0 al 0 de 0 registros",
+                "sInfoFiltered": "(filtrado de _MAX_ registros en total)",
+                "sInfoPostFix": "",
+                "sSearch": "Buscar:",
+                "sUrl": "",
+                "sInfoThousands": ",",
+                "sLoadingRecords": "Cargando...",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sLast": "Último",
+                    "sNext": "Siguiente",
+                    "sPrevious": "Anterior"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            },
+            lengthMenu: [ [5, 10, 25, 50], [5, 10, 25, 50] ]
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(function(dropdown) {
+                dropdown.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var dropdownMenu = this.nextElementSibling;
+                    dropdownMenu.classList.toggle('show');
+                });
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!event.target.matches('.dropdown-toggle')) {
+                    var dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    dropdowns.forEach(function(dropdown) {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+        });
+
+        function actualizarIndicadorNotificaciones() {
+            $.ajax({
+                url: '{% url "api_notificaciones" %}',
+                method: 'GET',
+                success: function(data) {
+                    const indicador = $('.notification-indicator');
+                    if (data.has_unread) {
+                        let count = data.unread_count || 0; // Asegúrate de que el backend envíe este dato
+                        let displayCount = count > 99 ? '99+' : count;
+                        indicador.html(displayCount);
+                        indicador.show();
+                    } else {
+                        indicador.hide();
+                    }
+                }
+            });
+        }
+        
+        // Actualizar cada minuto
+        setInterval(actualizarIndicadorNotificaciones, 60000);
+        
+        // Actualizar al cargar la página
+        $(document).ready(actualizarIndicadorNotificaciones);
+
+        function adjustForMobile() {
+            if (window.innerWidth <= 768) {
+                barraLateral.classList.add("mini-barra-lateral");
+                topbar.classList.add("expanded");
+                main.classList.add("expanded");
+            } else {
+                barraLateral.classList.remove("mini-barra-lateral");
+                topbar.classList.remove("expanded");
+                main.classList.remove("expanded");
+            }
+        }
+
+        window.addEventListener('load', adjustForMobile);
+        window.addEventListener('resize', adjustForMobile);
+
+        $(document).ready(function() {
+            // Para la tabla de bienes
+            if ($('#tblBienes').length) {
+                $('#tblBienes').DataTable({
+                    searching: true,
+                    columnDefs: [
+                        { 
+                            targets: 5, // Columna "Acciones"
+                            searchable: false,
+                            orderable: false // Deshabilita el ordenamiento
+                        }
+                    ],
+                    language: {
+                        "sProcessing": "Procesando...",
+                        "sLengthMenu": "Mostrar _MENU_ registros por página",
+                        "sZeroRecords": "No se encontraron resultados",
+                        "sInfo": "Mostrando _START_ al _END_ de _TOTAL_ registros",
+                        "sInfoEmpty": "Mostrando 0 al 0 de 0 registros",
+                        "sInfoFiltered": "(filtrado de _MAX_ registros en total)",
+                        "sInfoPostFix": "",
+                        "sSearch": "Buscar:",
+                        "sUrl": "",
+                        "sInfoThousands": ",",
+                        "sLoadingRecords": "Cargando...",
+                        "oPaginate": {
+                            "sFirst": "Primero",
+                            "sLast": "Último",
+                            "sNext": "Siguiente",
+                            "sPrevious": "Anterior"
+                        }
+                    },
+                    pageLength: 10,
+                    order: [[0, "asc"]]
+                });
+            }
+            
+            // Para la tabla de estatus
+            if ($('#estatus-table').length) {
+                $('#estatus-table').DataTable({
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                    },
+                    pageLength: 10
+                });
+            }
+            
+            // Para la tabla de stock
+            if ($('#tblStock').length) {
+                $('#tblStock').DataTable({
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                    },
+                    pageLength: 10,
+                    order: [[0, "asc"]]
+                });
+            }
+        });
+        
+        function toggleDropdown() {
+            document.getElementById("userDropdown").classList.toggle("show");
+        }
+        
+        window.onclick = function(event) {
+            if (!event.target.closest('.user-info-container')) {
+                var dropdowns = document.getElementsByClassName("user-dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        };
+    </script>
+
+  
+    <script>
+        // static/js/concepto_movimiento.js
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar conceptos al abrir el modal
+        const modal = document.getElementById('modalConceptoMovimiento');
+        modal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const bienId = button.getAttribute('data-bien-id');
+            document.getElementById('bienId').value = bienId;
+            
+            // Cargar conceptos disponibles
+            fetch('/bienes/conceptos-movimiento/')
+                .then(response => response.json())
+                .then(conceptos => {
+                    const select = document.getElementById('conceptoMovimiento');
+                    select.innerHTML = '';
+                    conceptos.forEach(concepto => {
+                        const option = new Option(concepto.nombre, concepto.id_concepto_de_movimiento);
+                        select.add(option);
+                    });
+                });
+        });
+    
+        // Manejar el guardado del nuevo concepto
+        document.getElementById('btnGuardarConcepto').addEventListener('click', function() {
+            const bienId = document.getElementById('bienId').value;
+            const conceptoId = document.getElementById('conceptoMovimiento').value;
+            const formData = new FormData();
+            formData.append('concepto_id', conceptoId);
+    
+            fetch(`/bienes/actualizar-concepto/${bienId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar la interfaz según sea necesario
+                    const conceptoElement = document.querySelector(`[data-bien-concepto="${bienId}"]`);
+                    if (conceptoElement) {
+                        conceptoElement.textContent = data.nuevo_concepto;
+                    }
+                    bootstrap.Modal.getInstance(modal).hide();
+                    // Mostrar mensaje de éxito
+                    mostrarNotificacion('Concepto actualizado correctamente', 'success');
+                } else {
+                    mostrarNotificacion(data.mensaje, 'error');
+                }
+            })
+            .catch(error => {
+                mostrarNotificacion('Error al actualizar el concepto', 'error');
+            });
+        });
+    });
+    
+    // Función helper para obtener el token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Función para mostrar notificaciones
+    function mostrarNotificacion(mensaje, tipo) {
+        // Implementa aquí tu sistema de notificaciones preferido
+        // Ejemplo con Toast de Bootstrap
+        const toast = new bootstrap.Toast(document.createElement('div'));
+        toast._element.className = `toast bg-${tipo === 'success' ? 'success' : 'danger'} text-white`;
+        toast._element.innerHTML = `
+            <div class="toast-body">
+                ${mensaje}
+            </div>
+        `;
+        document.body.appendChild(toast._element);
+        toast.show();
+    }
+    </script>
+
+</body>
+</html>

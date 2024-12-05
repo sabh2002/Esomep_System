@@ -1,0 +1,247 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_content %}
+<style>
+    .admin-container {
+        padding: 2rem;
+    }
+
+    .admin-title {
+        color: #003366;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .admin-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #003366, #0066cc);
+        border-radius: 3px;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .admin-section:hover {
+        transform: translateY(-5px);
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .section-content {
+        padding: 1.5rem;
+    }
+
+    .menu-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+
+    .menu-item:hover {
+        background: #003366;
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .menu-item i {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        width: 2rem;
+        text-align: center;
+    }
+
+    .menu-item-content {
+        flex: 1;
+    }
+
+    .menu-item-title {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .menu-item-description {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 1rem;
+        }
+
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <h1 class="admin-title">Panel de Administración</h1>
+
+    <div class="admin-grid">
+        <!-- Sección de Configuración -->
+        <div class="admin-section">
+            <div class="section-header">
+                <i class="fas fa-cogs"></i>
+                Configuración
+            </div>
+            <div class="section-content">
+                <div class="menu-grid">
+                    <a href="{% url 'listar_departamentos' %}" class="menu-item">
+                        <i class="fas fa-building"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Departamentos</div>
+                            <div class="menu-item-description">Gestionar departamentos</div>
+                        </div>
+                    </a>
+        
+                    <a href="{% url 'unidad_list' %}" class="menu-item">
+                        <i class="fas fa-sitemap"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Unidades</div>
+                            <div class="menu-item-description">Gestionar unidades</div>
+                        </div>
+                    </a>
+        
+                    <a href="{% url 'lista_usuarios' %}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Usuarios</div>
+                            <div class="menu-item-description">Administrar usuarios del sistema</div>
+                        </div>
+                    </a>
+        
+                    <a href="{% url 'registro_usuario' %}" class="menu-item">
+                        <i class="fas fa-user-plus"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Registro de Usuario</div>
+                            <div class="menu-item-description">Crear nuevos usuarios</div>
+                        </div>
+                    </a>
+        
+                    <a href="{% url 'tipos_solicitud_list' %}" class="menu-item">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Tipos de Solicitud</div>
+                            <div class="menu-item-description">Gestionar tipos de solicitudes</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Catálogo -->
+        <div class="admin-section">
+            <div class="section-header">
+                <i class="fas fa-book"></i>
+                Catálogo
+            </div>
+            <div class="section-content">
+                <div class="menu-grid">
+                    <a href="{% url 'concepto_list' %}" class="menu-item">
+                        <i class="fas fa-tags"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Conceptos</div>
+                            <div class="menu-item-description">Gestionar conceptos de movimiento</div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'grupo-list' %}" class="menu-item">
+                        <i class="fas fa-layer-group"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Grupos</div>
+                            <div class="menu-item-description">Administrar grupos de bienes</div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'subgrupo_list' %}" class="menu-item">
+                        <i class="fas fa-sitemap"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Subgrupos</div>
+                            <div class="menu-item-description">Gestionar subgrupos</div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'seccionsubgrupo_list' %}" class="menu-item">
+                        <i class="fas fa-stream"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Secciones</div>
+                            <div class="menu-item-description">Gestionar secciones de subgrupos</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Reportes -->
+        <div class="admin-section">
+            <div class="section-header">
+                <i class="fas fa-chart-bar"></i>
+                Reportes
+            </div>
+            <div class="section-content">
+                <div class="menu-grid">
+                    <a href="{% url 'menu_reportes' %}" class="menu-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Formularios BM</div>
+                            <div class="menu-item-description">Generar reportes BM-1 y BM-2 </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'admin_reportes' %}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="menu-item-content">
+                            <div class="menu-item-title">Estadísticas</div>
+                            <div class="menu-item-description">Ver estadísticas del sistema</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        </div>
+    </div>
+</div>
+{% endblock %}

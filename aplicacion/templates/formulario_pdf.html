@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Generar Documento {{ tipo_evento }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'guardar_descripcion_pdf' historial.id %}">
+                {% csrf_token %}
+                
+                <div class="form-group mb-3">
+                    <label for="descripcion">Descripción general del mantenimiento:</label>
+                    <textarea 
+                        class="form-control" 
+                        id="descripcion" 
+                        name="descripcion" 
+                        rows="4" 
+                        required
+                        placeholder="Descripción general del mantenimiento a realizar"></textarea>
+                </div>
+
+                {% if tipo_evento == 'MANTENIMIENTO' %}
+                <div class="form-group mb-3">
+                    <label for="tipo_mantenimiento">Tipo de Mantenimiento:</label>
+                    <select class="form-control" id="tipo_mantenimiento" name="tipo_mantenimiento" required>
+                        <option value="">Seleccione el tipo de mantenimiento</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Correctivo">Correctivo</option>
+                        <option value="Predictivo">Predictivo</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="fallas_encontradas">Fallas Encontradas:</label>
+                    <textarea 
+                        class="form-control" 
+                        id="fallas_encontradas" 
+                        name="fallas_encontradas" 
+                        rows="3" 
+                        required
+                        placeholder="Detalle las fallas o problemas encontrados"></textarea>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="solucion_aplicada">Solución a Aplicar:</label>
+                    <textarea 
+                        class="form-control" 
+                        id="solucion_aplicada" 
+                        name="solucion_aplicada" 
+                        rows="3" 
+                        required
+                        placeholder="Describa la solución que se aplicará"></textarea>
+                </div>
+                {% endif %}
+
+                {% if tipo_evento == 'TRASLADO_TEMPORAL' %}
+                <div class="form-group mb-3">
+                    <label for="motivo_traslado">Motivo del traslado:</label>
+                    <textarea class="form-control" id="motivo_traslado" name="motivo_traslado" required></textarea>
+                </div>
+                {% endif %}
+
+                {% if tipo_evento == 'DESINCORPORACION' %}
+                <div class="form-group mb-3">
+                    <label for="motivo_desincorporacion">Motivo de desincorporación:</label>
+                    <textarea class="form-control" id="motivo_desincorporacion" name="motivo_desincorporacion" required></textarea>
+                </div>
+                {% endif %}
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                    <a href="{% url 'historial_bien' historial.bien_id.id_bienes %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

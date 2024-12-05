@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Inventario</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .page-header {
+            background-color: #003366;
+            color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            font-size: 2rem;
+            margin: 0;
+            text-align: center;
+            font-weight: 700;
+        }
+        .bien-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #ffd700;
+        }
+        .bien-nombre, .bien-marca {
+            font-size: 1.2rem;
+            margin: 5px 0;
+            color: #fff; /* Nuevo color verde para el nombre del bien y marca */
+            font-weight: bold; /* Hacemos el texto en negrita para que resalte más */
+        }
+        .card {
+            background-color: #fff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #002244;
+            color: #fff;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+        .card-title {
+            color: #fff;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            padding: 15px;
+        }
+        .info-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e3e6f0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .info-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-label {
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 2px;
+            font-size: 0.85rem;
+        }
+        .info-value {
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background-color: #003366;
+            border-color: #003366;
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #002244;
+            border-color: #002244;
+        }
+        .tooltip-inner {
+            max-width: 300px;
+            text-align: left;
+        }
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            background-color: #003366;
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .modal-title {
+            font-weight: bold;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-body h6 {
+            color: #003366;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 5px;
+        }
+        .modal-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .modal-list-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e3e6f0;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .modal-list-item strong {
+            color: #003366;
+        }
+        .modal-badge {
+            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .modal-badge-temporal {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .modal-info-line {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Detalles del Inventario</h1>
+            <div class="bien-info">
+                <div class="bien-nombre">Nombre Del Bien: {{ stock.bien_id }}</div>
+                <div class="bien-marca">Numero de Identificacion: {{ stock.bien_id.numero_de_identificacion }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Información General</h2>
+            </div>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="total">
+                        <div class="info-label">Cantidad Total</div>
+                        <div class="info-value">{{ stock.cantidad_total }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="disponible">
+                        <div class="info-label">Cantidad Disponible</div>
+                        <div class="info-value">{{ stock.cantidad_disponible }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="asignada">
+                        <div class="info-label">Cantidad Asignada</div>
+                        <div class="info-value">{{ stock.cantidad_asignada }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="prestada">
+                        <div class="info-label">Cantidad Prestada</div>
+                        <div class="info-value">{{ stock.cantidad_prestada }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="mantenimiento">
+                        <div class="info-label">En Mantenimiento</div>
+                        <div class="info-value">{{ stock.cantidad_en_mantenimiento }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="desincorporada">
+                        <div class="info-label">Desincorporada</div>
+                        <div class="info-value">{{ stock.cantidad_desincorporada }}</div>
+                    </div>
+                    <div class="info-item" data-bs-toggle="modal" data-bs-target="#modalDetalle" data-tipo="resguardada">
+                        <div class="info-label">Resguardada</div>
+                        <div class="info-value">{{ stock.cantidad_resguardada }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            <a href="{% url 'bien_list' %}" class="btn btn-primary">Volver a la lista de bienes</a>
+        </div>
+    </div>
+
+    <!-- Modal para detalles -->
+    <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetalleLabel">Detalles</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- El contenido se llenará dinámicamente con JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
+            var modalDetalle = document.getElementById('modalDetalle')
+            modalDetalle.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget
+                var tipo = button.getAttribute('data-tipo')
+                var modalTitle = modalDetalle.querySelector('.modal-title')
+                var modalBody = modalDetalle.querySelector('.modal-body')
+
+                var titulo = ''
+                var contenido = ''
+
+                switch(tipo) {
+                    case 'total':
+                        titulo = 'Cantidad Total'
+                        contenido = 'Desglose de la cantidad total del bien "{{ stock.bien_id }}"'
+                        break
+                    case 'disponible':
+                        titulo = 'Cantidad Disponible'
+                        contenido = 'Listado de unidades disponibles del bien "{{ stock.bien_id }}"'
+                        break
+                    case 'asignada':
+                        titulo = 'Cantidad Asignada'
+                        contenido = `
+                            <h6>Detalles de asignaciones del bien "{{ stock.bien_id }}" por departamento:</h6>
+                            <ul class="modal-list">
+                            {% for asignacion in departamentos_asignados %}
+                                <li class="modal-list-item">
+                                    <div class="modal-info-line">
+                                        <strong>{{ asignacion.id_departamentos.nombre_departamento }}</strong>
+                                        {% if asignacion.es_temporal %}
+                                            <span class="modal-badge modal-badge-temporal">Temporal</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-info-line">
+                                        Cantidad: {{ asignacion.cantidad_asignada }} unidad(es)
+                                    </div>
+                                    <div class="modal-info-line">
+                                        {% with user=asignacion.id_departamentos.usuario_set.first %}
+                                            {% if user %}
+                                                Usuario: {{ user.nombres }} {{ user.apellidos }} (Cédula: {{ user.cedula }})
+                                            {% else %}
+                                                Usuario no asignado
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li>No hay departamentos asignados para este bien.</li>
+                            {% endfor %}
+                            </ul>
+                        `
+                        break
+                    case 'prestada':
+                        titulo = 'Cantidad Prestada'
+                        contenido = `
+                            <h6>Información sobre préstamos actuales del bien "{{ stock.bien_id }}":</h6>
+                            <ul class="modal-list">
+                            {% for prestamo in prestamos %}
+                                <li class="modal-list-item">
+                                    <div class="modal-info-line">
+                                        <strong>{{ prestamo.departamento.nombre_departamento }}</strong>
+                                    </div>
+                                    <div class="modal-info-line">
+                                        Cantidad: {{ prestamo.cantidad }} unidad(es)
+                                    </div>
+                                    <div class="modal-info-line">
+                                        Ubicación: {{ prestamo.ubicacion }}
+                                    </div>
+                                    <div class="modal-info-line">
+                                        Fecha de préstamo: {{ prestamo.fecha_prestamo }}
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li>No hay préstamos activos para este bien.</li>
+                            {% endfor %}
+                            </ul>
+                        `
+                        break
+                    case 'mantenimiento':
+                        titulo = 'Cantidad en Mantenimiento'
+                        contenido = 'Estado actual de mantenimiento del bien "{{ stock.bien_id }}"'
+                        break
+                    case 'desincorporada':
+                        titulo = 'Cantidad Desincorporada'
+                        contenido = 'Historial de desincorporaciones del bien "{{ stock.bien_id }}"'
+                        break
+                    case 'resguardada':
+                        titulo = 'Cantidad Resguardada'
+                        contenido = 'Detalle de unidades en resguardo del bien "{{ stock.bien_id }}"'
+                        break
+                }
+
+                modalTitle.textContent = titulo
+                modalBody.innerHTML = contenido
+            })
+        })
+    </script>
+
+</body>
+</html>
+{% endblock %}

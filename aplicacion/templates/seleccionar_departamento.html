@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Seleccionar Departamento para Devolución</h2>
+<form method="post" action="{% url 'devolver_bien_seleccionando_departamento' %}">
+    {% csrf_token %}
+    <input type="hidden" name="bien_id" value="{{ bien.id_bienes }}">
+    <select name="departamento_id" required>
+        {% for departamento in departamentos %}
+            <option value="{{ departamento.id_departamentos }}">{{ departamento.nombre_departamento }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Devolver Bien</button>
+</form>
+{% endblock %}

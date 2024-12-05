@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-card {
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+    .form-card .card-header {
+        background: linear-gradient(135deg, #003366 0%, #004a94 100%);
+        color: white;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group label {
+        font-weight: 500;
+        color: #495057;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    .error-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container">
+    <div class="card form-card">
+        <div class="card-header">
+            <h4 class="mb-0">{% if object %}Editar{% else %}Nuevo{% endif %} Concepto de Movimiento</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.codigo.id_for_label }}">Código: *</label>
+                    {{ form.codigo }}
+                    {% if form.codigo.errors %}
+                        <div class="error-feedback">
+                            {% for error in form.codigo.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.nombre.id_for_label }}">Nombre: *</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                        <div class="error-feedback">
+                            {% for error in form.nombre.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.descripcion.id_for_label }}">Descripción:</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="error-feedback">
+                            {% for error in form.descripcion.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="buttons mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <a href="{% url 'concepto_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

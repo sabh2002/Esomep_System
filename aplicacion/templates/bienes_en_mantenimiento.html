@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .maintenance-header {
+        background-color: #003366;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .maintenance-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .table-responsive {
+        padding: 20px;
+    }
+
+    .btn-devolver {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-right: 5px;
+    }
+
+    .btn-devolver:hover {
+        background-color: #218838;
+    }
+
+    .btn-concepto {
+        background-color: #0056b3;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-concepto:hover {
+        background-color: #004494;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+
+    .badge-maintenance {
+        background-color: #ffc107;
+        color: black;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="maintenance-header">
+        <h2 class="text-center mb-0">Bienes en Mantenimiento</h2>
+    </div>
+
+    <div class="maintenance-card">
+        <div class="table-responsive">
+            <table class="table" id="tablaBienesMantenimiento">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre del Bien</th>
+                        <th>Ubicación Original</th>
+                        <th>Fecha de Envío</th>
+                        <th>Concepto Actual</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bien in bienes_mantenimiento %}
+                    <tr>
+                        <td>{{ bien.id_bienes }}</td>
+                        <td>{{ bien.nombre }}</td>
+                        <td>
+                            {% if bien.ultimo_mantenimiento %}
+                                {% with historial=bien.ultimo_mantenimiento.0 %}
+                                    {% if historial.departamento_origen %}
+                                        Departamento: {{ historial.departamento_origen.nombre_departamento }}
+                                    {% elif historial.UnidadOrganizacional_origen %}
+                                        Unidad: {{ historial.UnidadOrganizacional_origen.nombre }}
+                                    {% else %}
+                                        No especificada
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bien.ultimo_mantenimiento %}
+                                {{ bien.ultimo_mantenimiento.0.fecha_evento|date:"d/m/Y" }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span data-bien-concepto="{{ bien.id_bienes }}">
+                                {{ bien.id_concepto_de_movimiento.nombre|default:"No especificado" }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-maintenance">En Mantenimiento</span>
+                        </td>
+                        <td>
+                            <button 
+                                onclick="devolverBien('{{ bien.id_bienes }}')" 
+                                class="btn btn-devolver"
+                                title="Devolver a ubicación original"
+                            >
+                                <i class="fas fa-undo"></i> Devolver
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay bienes en mantenimiento actualmente.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Devolución -->
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Devolución</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea devolver este bien a su departamento original?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmarDevolucion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Cambio de Concepto -->
+<div class="modal fade" id="modalConceptoMovimiento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Actualizar Concepto de Movimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formConceptoMovimiento">
+                    {% csrf_token %}
+                    <input type="hidden" id="bienId" name="bien_id">
+                    <div class="mb-3">
+                        <label for="conceptoMovimiento" class="form-label">Nuevo Concepto:</label>
+                        <select class="form-select" id="conceptoMovimiento" name="concepto_id" required>
+                            <!-- Las opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarConcepto">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let bienSeleccionado = null;
+
+function devolverBien(bienId) {
+    bienSeleccionado = bienId;
+    $('#confirmModal').modal('show');
+}
+
+document.getElementById('confirmarDevolucion').addEventListener('click', function() {
+    if (!bienSeleccionado) return;
+
+    const formData = new FormData();
+    formData.append('bien_id', bienSeleccionado);
+    formData.append('accion', 'devolver');
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#confirmModal').modal('hide');
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: data.message
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al procesar la solicitud'
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#tablaBienesMantenimiento').DataTable({
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
+        },
+        order: [[3, 'desc']]
+    });
+});
+</script>
+
+{% endblock %}
+

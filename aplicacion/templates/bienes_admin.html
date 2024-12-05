@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Aplica los mismos estilos utilizados en la primera vista */
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        color: #003366;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .table-responsive {
+        margin-top: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    table th, table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    table th {
+        background-color: #003366;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+    table tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+    .btn-primary, .btn-info, .btn-success {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+    }
+    .btn-primary:hover {
+        background-color: #002244;
+        border-color: #002244;
+    }
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #138496;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: #fff;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #218838;
+    }
+    .estado-badge {
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: #fff;
+        font-weight: 600;
+    }
+    .estado-disponible {
+        background-color: #28a745;
+    }
+    .estado-resguardado {
+        background-color: #17a2b8;
+    }
+    .estado-desincorporado {
+        background-color: #dc3545;
+    }
+    .estado-no-disponible {
+        background-color: #6c757d;
+    }
+    .text-center {
+        margin-top: 30px;
+    }
+</style>
+
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Bienes No Asignados o Resguardados</h2>
+        </div>
+        <div class="card-body">
+            {% if bienes %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Número de Inventario</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Cantidad Total</th>
+                                <th>Disponible</th>
+                                <th>Asignado</th>
+                                <th>Resguardado</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in bienes %}
+                            <tr>
+                                <td>{{ item.bien.nombre }}</td>
+                                <td>{{ item.bien.numero_inventario }}</td>
+                                <td>{{ item.bien.marca }}</td>
+                                <td>{{ item.bien.modelo }}</td>
+                                <td>{{ item.bien.stock.cantidad_total }}</td>
+                                <td>{{ item.bien.stock.cantidad_disponible }}</td>
+                                <td>{{ item.total_asignado }}</td>
+                                <td>{{ item.bien.stock.cantidad_resguardada }}</td>
+                                <td>
+                                    {% if item.bien.stock.cantidad_resguardada > 0 %}
+                                        <span class="estado-badge estado-resguardado">Resguardado</span>
+                                    {% else %}
+                                        <span class="estado-badge estado-disponible">No Asignado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    No hay bienes no asignados o resguardados en el sistema.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="#" class="btn btn-success">
+            <i class="fas fa-plus mr-2"></i>Agregar Nuevo Bien
+        </a>
+        <a href="{% url 'index' %}" class="btn btn-primary">
+            <i class="fas fa-home mr-2"></i>Volver al Inicio
+        </a>
+    </div>
+</div>
+{% endblock %}

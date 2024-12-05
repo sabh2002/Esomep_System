@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+
+    .card-header {
+        background: white;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding: 15px 20px;
+    }
+
+    .card-body {
+        padding: 30px;
+        background: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px 12px;
+    }
+
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 0.2rem rgba(0,51,102,0.25);
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 8px 12px;
+        margin-top: 5px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+        border-color: #002244;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .buttons-container {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+</style>
+
+<div class="form-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+            {% if form.instance.pk %}Editar{% else %}Nueva{% endif %} Unidad Organizacional
+        </h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_codigo" class="form-label">Código</label>
+                    {{ form.codigo.errors }}
+                    <input type="text" 
+                           name="codigo" 
+                           class="form-control {% if form.codigo.errors %}is-invalid{% endif %}" 
+                           id="id_codigo" 
+                           value="{{ form.codigo.value|default:'' }}"
+                           required>
+                    {% if form.codigo.help_text %}
+                        <small class="form-text text-muted">{{ form.codigo.help_text }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_nombre" class="form-label">Nombre</label>
+                    {{ form.nombre.errors }}
+                    <input type="text" 
+                           name="nombre" 
+                           class="form-control {% if form.nombre.errors %}is-invalid{% endif %}" 
+                           id="id_nombre" 
+                           value="{{ form.nombre.value|default:'' }}"
+                           required>
+                    {% if form.nombre.help_text %}
+                        <small class="form-text text-muted">{{ form.nombre.help_text }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_descripcion" class="form-label">Descripción</label>
+                    {{ form.descripcion.errors }}
+                    <textarea name="descripcion" 
+                              class="form-control {% if form.descripcion.errors %}is-invalid{% endif %}" 
+                              id="id_descripcion" 
+                              rows="3">{{ form.descripcion.value|default:'' }}</textarea>
+                    {% if form.descripcion.help_text %}
+                        <small class="form-text text-muted">{{ form.descripcion.help_text }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="buttons-container">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                    <a href="{% url 'unidad_list' %}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

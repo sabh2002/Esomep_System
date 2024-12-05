@@ -1,0 +1,1471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Bien</title>
+    <style>
+        /* Estilos existentes */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background-color: #003366;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 400;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            color: #495057;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button:hover {
+            background-color: #e9ecef;
+        }
+
+        .tab-button.active {
+            color: #003366;
+            border-bottom-color: #003366;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -10px;
+        }
+
+        .form-group {
+            flex: 1 1 calc(50% - 20px);
+            margin: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="file"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+    
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+    
+        .nav-button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+    
+        .nav-button:hover {
+            background-color: #002244;
+        }
+    
+        .nav-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #e9ecef;
+            height: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #003366;
+            transition: width 500ms ease-in-out;
+        }
+
+        .input-error {
+            border-color: #dc3545;
+        }
+
+
+        
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .mensaje-confirmacion {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            width: 400px;
+        }
+
+        .mensaje-confirmacion h2 {
+            color: #003366;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-confirmacion p {
+            margin-bottom: 15px;
+        }
+
+        .mensaje-confirmacion button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .mensaje-confirmacion button:hover {
+            background-color: #002244;
+        }
+
+        #descripciones {
+            margin-top: 20px;
+        }
+        .descripcion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .descripcion-item label {
+            font-weight: bold;
+        }
+        #add-descripcion {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #add-descripcion:hover {
+            background-color: #218838;
+        }
+        .remove-descripcion {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .remove-descripcion:hover {
+            background-color: #c82333;
+        }
+
+        .section-title {
+            color: #003366;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    
+        .especificacion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+    
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-size: 1em;
+        }
+    
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        .section-title {
+            color: #003366;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    
+        .especificacion-item,
+        .descripcion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+    
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-size: 1em;
+        }
+    
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        .numero-feedback {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .numero-feedback.validating::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid #003366;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        .numero-feedback.valid::after {
+            content: '✓';
+            color: #198754;
+            font-weight: bold;
+        }
+        
+        .numero-feedback.invalid::after {
+            content: '✕';
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .validation-message {
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        
+        .validation-message.valid {
+            color: #198754;
+        }
+        
+        .validation-message.invalid {
+            color: #dc3545;
+        }
+
+                /* Estilo para el calendario */
+        input[type="date"] {
+            color-scheme: light;
+            background-color: white;
+            color: #495057;
+            font-family: inherit;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 100%;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        input[type="date"]:hover {
+            border-color: #a8b1b8;
+        }
+
+        input[type="date"]:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        /* Personalización del ícono del calendario */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: transparent;
+            color: #495057;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Asegurar color de texto consistente en todos los navegadores */
+        input[type="date"]::-webkit-datetime-edit-text,
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: #495057;
+        }
+
+        /* Estilo cuando está deshabilitado */
+        input[type="date"]:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Registro de Bien</h1>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <form id="bienForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="tab-navigation">
+                <button type="button" class="tab-button active" data-tab="info-general">Información General</button>
+                <button type="button" class="tab-button" data-tab="detalles-movimiento">Detalles de Movimiento</button>
+                <button type="button" class="tab-button" data-tab="especificaciones">Especificaciones</button>
+                <button type="button" class="tab-button" data-tab="descripciones">Descripciones</button>
+                <button type="button" class="tab-button" data-tab="info-adicional">Información Adicional</button>
+            </div>
+    
+            <div id="info-general" class="tab-content active">
+                <div class="form-row">
+                    <!-- Agregamos primero el tipo de bien -->
+                    <div class="form-group">
+                        <label for="{{ form.tipo_bien.id_for_label }}">Tipo de Bien: *</label>
+                        {{ form.tipo_bien }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_grupo.id_for_label }}">Grupo: *</label>
+                        {{ form.id_grupo }}
+                    </div>                    
+                    <div class="form-group">
+                        <label for="{{ form.id_subgrupo.id_for_label }}">Subgrupo: *</label>
+                        {{ form.id_subgrupo }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_seccion_subgrupo.id_for_label }}">Sección: </label>
+                        {{ form.id_seccion_subgrupo }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.nombre.id_for_label }}">Nombre: *</label>
+                        {{ form.nombre }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.numero_de_identificacion.id_for_label }}">Número de Inventario: *</label>
+                        <div class="input-group">
+                            {{ form.numero_de_identificacion }}
+                            {{ form.numero_de_identificacion_original }}
+                            <div class="numero-feedback" id="numero-feedback"></div>
+                        </div>
+                        {% if form.numero_de_identificacion.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.numero_de_identificacion.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                        {% if form.numero_de_identificacion.help_text %}
+                            <small class="form-text text-muted">
+                                {{ form.numero_de_identificacion.help_text }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        
+            <div id="detalles-movimiento" class="tab-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_concepto_de_movimiento.id_for_label }}">Concepto de Movimiento: *</label>
+                        {{ form.id_concepto_de_movimiento }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.incorporacion.id_for_label }}">Incorporación Bs.: *</label>
+                        {{ form.incorporacion }}
+                        {% if form.incorporacion.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.incorporacion.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Ingrese el valor en bolívares con hasta 2 decimales.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="especificaciones" class="tab-content">
+                <h3 class="section-title">Especificaciones del Bien</h3>
+                
+                {{ especificacion_formset.management_form }}
+                
+                <div id="especificacion-container">
+                    {% for especificacion_form in especificacion_formset %}
+                    <div class="especificacion-item">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ especificacion_form.especificacion.id_for_label }}">Especificación:</label>
+                                {{ especificacion_form.especificacion }}
+                                {% if especificacion_form.instance.pk %}
+                                    <input type="hidden" name="{{ especificacion_form.prefix }}-id" value="{{ especificacion_form.instance.pk }}">
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ especificacion_form.descripcion_especificacion.id_for_label }}">Descripción:</label>
+                                {{ especificacion_form.descripcion_especificacion }}
+                            </div>
+                        </div>
+                        <button type="button" class="remove-especificacion btn-remove">Eliminar</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" id="add-especificacion" class="btn-add">Agregar Especificación</button>
+            </div>
+            
+            <div id="descripciones" class="tab-content">
+                <h3 class="section-title">Descripciones del Bien</h3>
+                
+                {{ descripcion_formset.management_form }}
+            
+                <div id="descripcion-container">
+                    {% for descripcion_form in descripcion_formset %}
+                    <div class="descripcion-item">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ descripcion_form.descripcion.id_for_label }}">Descripción:</label>
+                                {{ descripcion_form.descripcion }}
+                                {% if descripcion_form.instance.pk %}
+                                    <input type="hidden" name="{{ descripcion_form.prefix }}-id" value="{{ descripcion_form.instance.pk }}">
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ descripcion_form.estado.id_for_label }}">Estado:</label>
+                                {{ descripcion_form.estado }}
+                            </div>
+                        </div>
+                        <button type="button" class="remove-descripcion btn-remove">Eliminar</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            
+                <button type="button" id="add-descripcion" class="btn-add">Agregar Descripción</button>
+            </div>
+    
+            <div id="info-adicional" class="tab-content">
+                <div class="form-group">
+                    <label for="{{ form.observacion.id_for_label }}">Observación:</label>
+                    {{ form.observacion }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.condicion.id_for_label }}">Condición:</label>
+                    {{ form.condicion }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.archivo_multimedia.id_for_label }}">Archivo Multimedia:</label>
+                    {{ form.archivo_multimedia }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.fecha_de_registro.id_for_label }}">Fecha de Registro: *</label>
+                    {{ form.fecha_de_registro }}
+                </div>
+            </div>
+    
+                <div class="navigation-buttons">
+                    <button type="button" id="nextBtn" class="nav-button">Siguiente</button>
+                    <button type="submit" id="submitBtn" class="nav-button" style="display: none;">Guardar Registro</button>
+                </div>
+        </form>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="mensaje-confirmacion" id="mensajeConfirmacion">
+            <h2>Registro Exitoso</h2>
+            <p>El bien ha sido registrado correctamente en el Sistema.</p>
+            <p>Número de Registro: <strong id="numeroRegistro"></strong></p>
+            <p>Fecha y Hora: <span id="fechaHoraRegistro"></span></p>
+            <button onclick="cerrarMensajeConfirmacion()">Aceptar</button>
+        </div>
+    </div>
+
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const TabNavigation = {
+                init() {
+                    this.form = document.getElementById('bienForm');
+                    this.tabs = document.querySelectorAll('.tab-button');
+                    this.contents = document.querySelectorAll('.tab-content');
+                    this.nextBtn = document.getElementById('nextBtn');
+                    this.submitBtn = document.getElementById('submitBtn');
+                    this.progressBar = document.getElementById('progress');
+                    this.descripcionesContainer = document.getElementById('descripciones');
+                    this.totalFormsInput = document.querySelector('#id_form-TOTAL_FORMS');
+                    this.currentTab = 0;
+        
+                    this.setupEventListeners();
+                    this.showTab(0);
+                    this.initFormset();
+                },
+        
+                setupEventListeners() {
+                    this.nextBtn.addEventListener('click', () => this.nextTab());
+        
+                    this.tabs.forEach((tab, index) => {
+                        tab.addEventListener('click', () => {
+                            if (this.validateTab()) {
+                                this.showTab(index);
+                            }
+                        });
+                    });
+        
+                    this.form.querySelectorAll('input, select, textarea').forEach(input => {
+                        if (input.name === 'nombre') {
+                            input.addEventListener('keypress', function(e) {
+                                if (/\d/.test(e.key)) {
+                                    e.preventDefault();
+                                }
+                            });
+                        } else if (input.name === 'numero_de_identificacion' || input.name === 'numero_de_serie') {
+                            input.addEventListener('keypress', function(e) {
+                                if (!/\d/.test(e.key)) {
+                                    e.preventDefault();
+                                }
+                            });
+                        }
+        
+                        input.addEventListener('input', () => this.validateInput(input));
+                        input.addEventListener('blur', () => this.validateInput(input));
+                    });
+        
+                    this.form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if (this.validateForm()) {
+                            this.submitForm();
+                        }
+                    });
+        
+                    if (this.isStorageAvailable('sessionStorage')) {
+                        const autoSaveInterval = setInterval(() => this.autoSave(), 30000);
+                        window.addEventListener('beforeunload', () => {
+                            clearInterval(autoSaveInterval);
+                            this.clearFormData();
+                        });
+                    }
+                },
+        
+                async nextTab() {
+                    if (this.currentTab === 0) {
+                        const numeroInput = document.getElementById('{{ form.numero_de_identificacion.id_for_label }}');
+                        if (numeroInput && numeroInput.value) {
+                            try {
+                                const idBien = '{{ object.pk|default:"" }}';
+                                const response = await fetch(`/verificar-numero-identificacion/?numero=${numeroInput.value}&id_bien=${idBien}`);
+                                const data = await response.json();
+                                window.isNumeroIdentificacionValid = data.valid;
+                
+                                if (!data.valid) {
+                                    return;
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                return;
+                            }
+                        }
+                    }
+                
+                    const isValid = this.validateTab();
+                    if (isValid && this.currentTab < this.tabs.length - 1) {
+                        this.showTab(this.currentTab + 1);
+                    }
+                },
+                
+        
+                showTab(n) {
+                    this.contents[this.currentTab].classList.remove('active');
+                    this.tabs[this.currentTab].classList.remove('active');
+                    this.contents[n].classList.add('active');
+                    this.tabs[n].classList.add('active');
+                    this.currentTab = n;
+        
+                    this.nextBtn.style.display = (this.currentTab === this.tabs.length - 1) ? "none" : "inline";
+                    this.submitBtn.style.display = (this.currentTab === this.tabs.length - 1) ? "inline" : "none";
+                    this.updateProgressBar();
+                },
+        
+                validateTab() {
+                    const currentContent = this.contents[this.currentTab];
+                    const inputs = currentContent.querySelectorAll('input[required], select[required], textarea[required], [data-required="true"]');
+                    let isValid = true;
+                
+                    inputs.forEach(input => {
+                        if (!this.validateInput(input)) {
+                            isValid = false;
+                        }
+                    });
+                
+                    // Solo verificar la validación del número en la primera pestaña
+                    if (this.currentTab === 0) {
+                        const numeroInput = document.getElementById('{{ form.numero_de_identificacion.id_for_label }}');
+                        if (numeroInput && !window.isNumeroIdentificacionValid) {
+                            isValid = false;
+                            this.showError(numeroInput, 'El número de identificación debe ser válido y único.');
+                        }
+                    }
+                
+                    return isValid;
+                },
+                
+                validateInput(input) {
+                    const value = input.value.trim();
+                    const name = input.name;
+                    const isRequired = input.hasAttribute('required') || input.dataset.required === 'true';
+        
+                    if (name === 'numero_de_identificacion') {
+                        if (!value) {
+                            this.showError(input, 'Este campo es obligatorio.');
+                            return false;
+                        }
+                        if (/[a-zA-Z]/.test(value)) {
+                            this.showError(input, 'Este campo no debe contener letras.');
+                            return false;
+                        }
+                        return window.isNumeroIdentificacionValid;
+                    }
+        
+                    if (name === 'nombre' && /\d/.test(value)) {
+                        this.showError(input, 'El nombre no debe contener números.');
+                        return false;
+                    }
+        
+                    if (isRequired && !value) {
+                        this.showError(input, 'Este campo es obligatorio.');
+                        return false;
+                    }
+        
+                    this.clearError(input);
+                    return true;
+                },
+        
+                showError(input, message) {
+                    this.clearError(input);
+                    const errorSpan = document.createElement('span');
+                    errorSpan.className = 'error-message';
+                    errorSpan.textContent = message;
+                    input.parentNode.appendChild(errorSpan);
+                    input.classList.add('input-error');
+                },
+        
+                clearError(input) {
+                    const errorSpan = input.parentNode.querySelector('.error-message');
+                    if (errorSpan) {
+                        errorSpan.remove();
+                    }
+                    input.classList.remove('input-error');
+                },
+        
+                updateProgressBar() {
+                    const progress = ((this.currentTab + 1) / this.tabs.length) * 100;
+                    this.progressBar.style.width = progress + '%';
+                },
+        
+                validateForm() {
+                    let isValid = true;
+                    let originalTab = this.currentTab;
+                    
+                    this.tabs.forEach((_, index) => {
+                        this.showTab(index);
+                        if (!this.validateTab()) {
+                            isValid = false;
+                            if (this.currentTab === index) {
+                                return false;
+                            }
+                        }
+                    });
+        
+                    if (!isValid) {
+                        this.showTab(originalTab);
+                    }
+                    
+                    return isValid;
+                },
+        
+                submitForm() {
+                    const formData = new FormData(this.form);
+                    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+                    fetch(this.form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            this.clearFormData();
+                            Swal.fire({
+                                title: '¡Registro Exitoso!',
+                                html: `
+                                    <p>El bien ha sido registrado correctamente en el Sistema.</p>
+                                    <p>Número de Registro: <strong>${data.numero_registro || 'N/A'}</strong></p>
+                                    <p>Fecha y Hora: ${new Date().toLocaleString()}</p>
+                                `,
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar',
+                                confirmButtonColor: '#003366'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/bienes/';
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Error al enviar el formulario. Por favor, revisa los campos e inténtalo de nuevo.',
+                                icon: 'error',
+                                confirmButtonColor: '#003366'
+                            });
+                            this.displayErrors(data.errors);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en la solicitud:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error en la comunicación con el servidor. Por favor, verifica tu conexión e inténtalo de nuevo.',
+                            icon: 'error',
+                            confirmButtonColor: '#003366'
+                        });
+                    });
+                },
+        
+                displayErrors(errors) {
+                    Object.entries(errors).forEach(([fieldName, errorMessages]) => {
+                        const field = this.form.querySelector(`[name="${fieldName}"]`);
+                        if (field) {
+                            this.showError(field, errorMessages[0]);
+                        }
+                    });
+                },
+        
+                isStorageAvailable(type) {
+                    try {
+                        const storage = window[type];
+                        const x = '__storage_test__';
+                        storage.setItem(x, x);
+                        storage.removeItem(x);
+                        return true;
+                    } catch(e) {
+                        return false;
+                    }
+                },
+        
+                autoSave() {
+                    if (!this.isStorageAvailable('sessionStorage')) return;
+        
+                    const formData = new FormData(this.form);
+                    const data = Object.fromEntries(formData);
+                    try {
+                        sessionStorage.setItem('bienFormData', JSON.stringify(data));
+                    } catch (error) {
+                        console.error('Error al guardar datos en sessionStorage:', error);
+                    }
+                },
+        
+                loadSavedData() {
+                    if (!this.isStorageAvailable('sessionStorage')) return;
+        
+                    try {
+                        const savedData = sessionStorage.getItem('bienFormData');
+                        if (savedData) {
+                            const data = JSON.parse(savedData);
+                            Object.entries(data).forEach(([key, value]) => {
+                                const input = this.form.elements[key];
+                                if (input) input.value = value;
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error al cargar datos desde sessionStorage:', error);
+                    }
+                },
+        
+                clearFormData() {
+                    if (this.isStorageAvailable('sessionStorage')) {
+                        sessionStorage.removeItem('bienFormData');
+                    }
+                    this.form.reset();
+                    this.initFormset();
+                    this.showTab(0);
+                },
+        
+                initFormset() {
+                    this.totalFormsInput = document.querySelector('#id_form-TOTAL_FORMS');
+                    if (this.totalFormsInput) {
+                        const initialCount = this.descripcionesContainer.querySelectorAll('.descripcion-item').length;
+                        this.totalFormsInput.value = initialCount;
+                    }
+                }
+            };
+        
+            // Inicializar TabNavigation
+            TabNavigation.init();
+        });
+</script>
+
+<script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const addDescripcionBtn = document.getElementById('add-descripcion');
+                const descripcionContainer = document.getElementById('descripcion-container');
+                const totalForms = document.getElementById('id_descripcion-TOTAL_FORMS'); // Actualizado con el prefijo 'descripcion'
+            
+                if (!totalForms) {
+                    console.error('El campo TOTAL_FORMS no fue encontrado.');
+                    return;  // Evita errores adicionales
+                }
+            
+                let formCount = parseInt(totalForms.value, 10);  // Total de formularios actuales
+            
+                function updateFormIndexes() {
+                    const forms = descripcionContainer.querySelectorAll('.descripcion-item');
+                    forms.forEach((form, index) => {
+                        form.querySelectorAll('input, select').forEach(input => {
+                            const name = input.getAttribute('name').replace(/-\d+-/, `-${index}-`);
+                            const id = 'id_' + name;
+                            input.setAttribute('name', name);
+                            input.setAttribute('id', id);
+                        });
+                    });
+                    totalForms.value = forms.length;
+                }
+            
+                addDescripcionBtn.addEventListener('click', function () {
+                    const firstForm = descripcionContainer.querySelector('.descripcion-item');
+                    const newForm = firstForm.cloneNode(true);
+            
+                    // Limpiar valores del nuevo formulario
+                    newForm.querySelectorAll('input, select').forEach(input => {
+                        input.value = '';
+                        const name = input.getAttribute('name').replace(/-\d+-/, `-${formCount}-`);
+                        const id = 'id_' + name;
+                        input.setAttribute('name', name);
+                        input.setAttribute('id', id);
+                    });
+            
+                    descripcionContainer.appendChild(newForm);
+                    formCount++;
+                    updateFormIndexes();
+                    console.log('Nueva descripción agregada. Total de descripciones:', formCount);
+                });
+            
+                descripcionContainer.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-descripcion')) {
+                        if (descripcionContainer.children.length > 1) {
+                            e.target.closest('.descripcion-item').remove();
+                            formCount--;
+                            updateFormIndexes();
+                            console.log('Descripción eliminada. Total de descripciones:', formCount);
+                        } else {
+                            alert('Debe haber al menos una descripción.');
+                        }
+                    }
+                });
+            
+                document.getElementById('bienForm').addEventListener('submit', function (e) {
+                    console.log('Datos del formulario antes de enviar:');
+                    const formData = new FormData(this);
+                    for (let [key, value] of formData.entries()) {
+                        console.log(key, value);
+                    }
+                });
+            });
+</script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+                    
+
+        const addEspecificacionBtn = document.getElementById('add-especificacion');
+        const especificacionContainer = document.getElementById('especificacion-container');
+        const totalFormsEspecificacion = document.getElementById('id_especificacion-TOTAL_FORMS');
+
+        if (!totalFormsEspecificacion) {
+            console.error('El campo TOTAL_FORMS para especificaciones no fue encontrado.');
+            return;
+        }
+
+        let formCountEspecificacion = parseInt(totalFormsEspecificacion.value, 10);
+
+        function updateFormIndexesEspecificacion() {
+            const forms = especificacionContainer.querySelectorAll('.especificacion-item');
+            forms.forEach((form, index) => {
+                form.querySelectorAll('input, select').forEach(input => {
+                    const name = input.getAttribute('name').replace(/-\d+-/, `-${index}-`);
+                    const id = 'id_' + name;
+                    input.setAttribute('name', name);
+                    input.setAttribute('id', id);
+                });
+            });
+            totalFormsEspecificacion.value = forms.length;
+        }
+
+        addEspecificacionBtn.addEventListener('click', function () {
+            const firstForm = especificacionContainer.querySelector('.especificacion-item');
+            const newForm = firstForm.cloneNode(true);
+
+            newForm.querySelectorAll('input, select').forEach(input => {
+                input.value = '';
+                const name = input.getAttribute('name').replace(/-\d+-/, `-${formCountEspecificacion}-`);
+                const id = 'id_' + name;
+                input.setAttribute('name', name);
+                input.setAttribute('id', id);
+            });
+
+            especificacionContainer.appendChild(newForm);
+            formCountEspecificacion++;
+            updateFormIndexesEspecificacion();
+            console.log('Nueva especificación agregada. Total de especificaciones:', formCountEspecificacion);
+        });
+
+        especificacionContainer.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-especificacion')) {
+                if (especificacionContainer.children.length > 1) {
+                    e.target.closest('.especificacion-item').remove();
+                    formCountEspecificacion--;
+                    updateFormIndexesEspecificacion();
+                    console.log('Especificación eliminada. Total de especificaciones:', formCountEspecificacion);
+                } else {
+                    alert('Debe haber al menos una especificación.');
+                }
+            }
+        });
+                        
+        });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoBienSelect = document.getElementById('id_tipo_bien');
+        const nombreInput = document.getElementById('id_nombre');
+    
+        tipoBienSelect.addEventListener('change', function() {
+            const tipoBienText = tipoBienSelect.options[tipoBienSelect.selectedIndex].text;
+            if (!nombreInput.value) {
+                nombreInput.value = tipoBienText;
+            }
+        });
+    
+        // Manejo de número de serie si existe
+        const numeroSerieInput = document.querySelector('[name="numero_de_serie"]');
+        if (numeroSerieInput) {
+            numeroSerieInput.addEventListener('keypress', function(e) {
+                if (!/\d/.test(e.key) && e.key !== '-' && e.key !== '_') {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const numeroIdentificacionInput = document.getElementById('{{ form.numero_de_identificacion.id_for_label }}');
+        const feedbackElement = document.getElementById('numero-feedback');
+        let timeoutId = null;
+        window.isNumeroIdentificacionValid = false;
+    
+        function showFeedback(isValid, message, type = null) {
+            // Limpiar clases existentes
+            feedbackElement.classList.remove('validating', 'valid', 'invalid');
+            
+            // Remover mensaje anterior si existe
+            const oldMessage = document.querySelector('.validation-message');
+            if (oldMessage) oldMessage.remove();
+    
+            // Crear nuevo mensaje
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `validation-message ${isValid ? 'valid' : 'invalid'}`;
+            messageDiv.textContent = message;
+            
+            // Añadir clase según el estado
+            feedbackElement.classList.add(isValid ? 'valid' : 'invalid');
+            
+            // Insertar mensaje después del input
+            numeroIdentificacionInput.parentNode.insertBefore(messageDiv, feedbackElement.nextSibling);
+    
+            // Actualizar estado de validación
+            window.isNumeroIdentificacionValid = isValid;
+            updateNextButtonState();
+        }
+    
+        async function validateNumero(numero) {
+            if (!numero) {
+                showFeedback(false, 'El número de identificación es requerido.');
+                return;
+            }
+    
+            feedbackElement.classList.add('validating');
+            
+            try {
+                const idBien = '{{ object.pk|default:"" }}';  // Para modo edición
+                const response = await fetch(`/verificar-numero-identificacion/?numero=${numero}&id_bien=${idBien}`);
+                const data = await response.json();
+    
+                if (data.valid) {
+                    showFeedback(true, data.message, 'success');
+                    if(data.type === 'success') {
+                        Swal.fire({
+                            title: 'Número Disponible',
+                            text: data.message,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                } else {
+                    showFeedback(false, data.message, 'error');
+                    if(data.type === 'error') {
+                        Swal.fire({
+                            title: 'Número No Disponible',
+                            text: data.message,
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                }
+            } catch (error) {
+                showFeedback(false, 'Error al verificar el número.');
+                console.error('Error:', error);
+            } finally {
+                feedbackElement.classList.remove('validating');
+            }
+        }
+    
+        if (numeroIdentificacionInput) {
+            numeroIdentificacionInput.addEventListener('input', function(e) {
+                // Permitir solo números
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Cancelar timeout anterior
+                if (timeoutId) clearTimeout(timeoutId);
+                
+                // Mostrar estado de validación
+                feedbackElement.classList.add('validating');
+                
+                // Establecer nuevo timeout
+                timeoutId = setTimeout(() => {
+                    validateNumero(this.value);
+                }, 500);
+            });
+    
+            numeroIdentificacionInput.addEventListener('blur', function() {
+                if (timeoutId) clearTimeout(timeoutId);
+                if (this.value) validateNumero(this.value);
+            });
+    
+            // Validación inicial si hay un valor
+            if (numeroIdentificacionInput.value) {
+                validateNumero(numeroIdentificacionInput.value);
+            }
+        }
+    
+        function updateNextButtonState() {
+            const nextBtn = document.getElementById('nextBtn');
+            const currentTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+            
+            if (currentTab === 'info-general') {
+                nextBtn.disabled = !window.isNumeroIdentificacionValid;
+                nextBtn.classList.toggle('disabled', !window.isNumeroIdentificacionValid);
+                if (nextBtn.disabled) {
+                    nextBtn.style.backgroundColor = '#cccccc';
+                    nextBtn.style.cursor = 'not-allowed';
+                    nextBtn.style.opacity = '0.5';
+                    nextBtn.title = 'El número de identificación debe ser único para continuar';
+                } else {
+                    nextBtn.style.backgroundColor = '';
+                    nextBtn.style.cursor = '';
+                    nextBtn.style.opacity = '';
+                    nextBtn.removeAttribute('title');
+                }
+            }
+        }
+    });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const grupoSelect = document.getElementById('id_id_grupo');
+            const subgrupoSelect = document.getElementById('id_id_subgrupo');
+            const seccionSelect = document.getElementById('id_id_seccion_subgrupo');
+            
+            // Función para actualizar subgrupos
+            function updateSubgrupos() {
+                const grupoId = grupoSelect.value;
+                
+                // Limpiar subgrupo y sección
+                subgrupoSelect.innerHTML = '<option value="">---------</option>';
+                seccionSelect.innerHTML = '<option value="">---------</option>';
+                
+                if (grupoId) {
+                    fetch(`/get-subgrupos/?grupo_id=${grupoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.subgrupos.forEach(subgrupo => {
+                                const option = new Option(`${subgrupo.codigo} - ${subgrupo.nombre}`, subgrupo.id_subgrupo);
+                                subgrupoSelect.add(option);
+                            });
+                        });
+                }
+            }
+            
+            // Función para actualizar secciones
+            function updateSecciones() {
+                const subgrupoId = subgrupoSelect.value;
+                
+                // Limpiar sección
+                seccionSelect.innerHTML = '<option value="">---------</option>';
+                
+                if (subgrupoId) {
+                    fetch(`/get-secciones/?subgrupo_id=${subgrupoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.secciones.forEach(seccion => {
+                                const option = new Option(`${seccion.codigo} - ${seccion.nombre}`, seccion.id_seccion_subgrupo);
+                                seccionSelect.add(option);
+                            });
+                        });
+                }
+            }
+            
+            // Event listeners
+            grupoSelect.addEventListener('change', updateSubgrupos);
+            subgrupoSelect.addEventListener('change', updateSecciones);
+            
+            // Si hay valores preseleccionados (en caso de edición)
+            if (grupoSelect.value) {
+                updateSubgrupos();
+            }
+            if (subgrupoSelect.value) {
+                updateSecciones();
+            }
+        });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                function formatNumber(number) {
+                    const parts = number.toString().split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    return parts.join(',');
+                }
+            
+                function unformatNumber(value) {
+                    if (!value) return '0';
+                    return value.replace(/\./g, '').replace(',', '.');
+                }
+            
+                function handleCurrencyInput(inputElement) {
+                    // Si no hay elemento, salir
+                    if (!inputElement) return;
+            
+                    // Formatear valor inicial si existe
+                    if (inputElement.value) {
+                        const initialValue = parseFloat(inputElement.value);
+                        if (!isNaN(initialValue)) {
+                            inputElement.value = formatNumber(initialValue.toFixed(2));
+                        }
+                    }
+            
+                    inputElement.addEventListener('input', function(e) {
+                        // Obtener el valor actual y la posición del cursor
+                        let value = e.target.value;
+                        const cursorPos = e.target.selectionStart;
+            
+                        // Remover caracteres no válidos
+                        value = value.replace(/[^\d.,]/g, '');
+            
+                        // Contar cuántas comas hay
+                        const commaCount = (value.match(/,/g) || []).length;
+                        
+                        // Si hay más de una coma, eliminar las adicionales
+                        if (commaCount > 1) {
+                            const parts = value.split(',');
+                            value = parts[0] + ',' + parts.slice(1).join('');
+                        }
+            
+                        // Asegurarse de que solo haya dos decimales después de la coma
+                        if (value.includes(',')) {
+                            const parts = value.split(',');
+                            if (parts[1].length > 2) {
+                                parts[1] = parts[1].slice(0, 2);
+                                value = parts.join(',');
+                            }
+                        }
+            
+                        // Convertir a número y formatear
+                        const numericValue = unformatNumber(value);
+                        if (numericValue !== '0') {
+                            const number = parseFloat(numericValue);
+                            if (!isNaN(number)) {
+                                const formattedValue = formatNumber(number.toFixed(2));
+                                e.target.value = formattedValue;
+            
+                                // Intentar mantener la posición del cursor
+                                const posDiff = formattedValue.length - value.length;
+                                e.target.setSelectionRange(cursorPos + posDiff, cursorPos + posDiff);
+                                return;
+                            }
+                        }
+                        
+                        e.target.value = value;
+                    });
+            
+                    // Al perder el foco, asegurar formato correcto
+                    inputElement.addEventListener('blur', function(e) {
+                        let value = e.target.value;
+                        
+                        // Si está vacío, poner 0,00
+                        if (!value) {
+                            e.target.value = '0,00';
+                            return;
+                        }
+            
+                        // Convertir a número y formatear
+                        const numericValue = unformatNumber(value);
+                        const number = parseFloat(numericValue);
+                        
+                        if (!isNaN(number)) {
+                            e.target.value = formatNumber(number.toFixed(2));
+                        } else {
+                            e.target.value = '0,00';
+                        }
+                    });
+            
+                    // Manejar el envío del formulario
+                    const form = inputElement.closest('form');
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+                            // Prevenir envío por defecto
+                            e.preventDefault();
+            
+                            // Obtener el valor y limpiarlo para el backend
+                            const value = inputElement.value;
+                            const cleanValue = unformatNumber(value);
+                            
+                            // Actualizar el valor del input
+                            inputElement.value = cleanValue;
+            
+                            // Continuar con el envío
+                            form.submit();
+                        });
+                    }
+                }
+            
+                // Inicializar en todos los inputs de moneda
+                const currencyInputs = document.querySelectorAll('.currency-input');
+                currencyInputs.forEach(handleCurrencyInput);
+            
+                // Agregar teclas especiales permitidas
+                document.querySelectorAll('.currency-input').forEach(input => {
+                    input.addEventListener('keydown', function(e) {
+                        // Permitir: backspace, delete, tab, escape, enter y .
+                        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                            // Permitir: Ctrl+A, Command+A
+                            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                            // Permitir: home, end, left, right, down, up
+                            (e.keyCode >= 35 && e.keyCode <= 40) ||
+                            // Permitir números del teclado numérico
+                            (e.keyCode >= 96 && e.keyCode <= 105)) {
+                            return;
+                        }
+                        // Prevenir si no es un número
+                        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && 
+                            (e.keyCode < 96 || e.keyCode > 105)) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+            });
+            </script>
+        
+</html>
+{% endblock %}

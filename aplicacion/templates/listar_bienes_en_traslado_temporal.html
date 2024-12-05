@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .page-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .page-title {
+        font-size: 2rem;
+        margin: 0;
+        text-align: center;
+    }
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        color: #003366;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    th {
+        background-color: #003366;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+    tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+    }
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: #fff;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+    }
+    .modal-buttons {
+        margin-top: 20px;
+        text-align: right;
+    }
+    .modal-buttons button {
+        margin-left: 10px;
+    }
+
+
+    .btn.disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
+    
+    .text-muted {
+        color: #6c757d !important;
+        font-size: 0.875em;
+    }
+    
+    .d-block {
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Bienes en Traslado Temporal</h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Bien</th>
+                            <th>Departamento Actual</th>
+                            <th>Cantidad</th>
+                            <th>Fecha de Inicio</th>
+                            <th>Fecha de Fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asignacion in bienes_en_traslado %}
+                            <tr>
+                                <td>{{ asignacion.id_bienes.nombre }}</td>
+                                <td>{{ asignacion.id_departamentos.nombre_departamento }}</td>
+                                <td>{{ asignacion.cantidad_asignada }}</td>
+                                <td>{{ asignacion.fecha_de_asignacion|date:"d/m/Y" }}</td>
+                                <td>{{ asignacion.fecha_fin_temporal|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if asignacion.id_asignacion_bienes %}
+                                        <form id="form-{{ asignacion.id_asignacion_bienes }}" method="post" action="{% url 'finalizar_traslado_temporal' asignacion.id_asignacion_bienes %}">
+                                            {% csrf_token %}
+                                            <button type="button" 
+                                                    class="btn btn-warning {% if not asignacion.puede_finalizar %}disabled{% endif %}" 
+                                                    onclick="confirmarFinalizacion({{ asignacion.id_asignacion_bienes }})"
+                                                    {% if not asignacion.puede_finalizar %}disabled{% endif %}>
+                                                Finalizar Traslado
+                                            </button>
+                                            {% if not asignacion.puede_finalizar %}
+                                            <small class="text-muted d-block">
+                                                Disponible a partir del {{ asignacion.fecha_fin_temporal|date:"d/m/Y" }}
+                                            </small>
+                                            {% endif %}
+                                        </form>
+                                    {% else %}
+                                        <p>Error: ID de asignación no disponible</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay bienes en traslado temporal actualmente.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div id="modalConfirmacion" class="modal">
+    <div class="modal-content">
+        <h3>Confirmar Finalización</h3>
+        <p>¿Está seguro que desea finalizar este traslado temporal?</p>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn btn-warning" onclick="confirmarEnvio()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let formActual = null;
+
+function confirmarFinalizacion(asignacionId) {
+    formActual = document.getElementById(`form-${asignacionId}`);
+    document.getElementById('modalConfirmacion').style.display = 'block';
+}
+
+function cerrarModal() {
+    document.getElementById('modalConfirmacion').style.display = 'none';
+    formActual = null;
+}
+
+function confirmarEnvio() {
+    if (formActual) {
+        formActual.submit();
+    }
+    cerrarModal();
+}
+
+// Cerrar modal si se hace clic fuera de él
+window.onclick = function(event) {
+    let modal = document.getElementById('modalConfirmacion');
+    if (event.target == modal) {
+        cerrarModal();
+    }
+}
+</script>
+{% endblock %}

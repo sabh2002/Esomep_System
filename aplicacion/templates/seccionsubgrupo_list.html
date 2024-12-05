@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background: linear-gradient(135deg, #003366 0%, #004a94 100%);
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 1rem 1.5rem;
+    }
+    .search-box {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .search-box .form-control {
+        padding-left: 2.5rem;
+        border-radius: 20px;
+    }
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    .btn-add {
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        border-top: none;
+    }
+    .action-buttons {
+        white-space: nowrap;
+    }
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.2rem;
+    }
+    .codigo-cell {
+        font-family: monospace;
+        min-width: 3em;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Secciones de Subgrupo</h4>
+            <a href="{% url 'seccionsubgrupo_create' %}" class="btn btn-light btn-add">
+                <i class="fas fa-plus-circle"></i> Nueva Sección
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Búsqueda -->
+            <form method="get" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Buscar por código, nombre o descripción..."
+                       value="{{ search_query }}">
+            </form>
+
+            <!-- Mensajes -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Tabla -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Subgrupo</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for seccion in object_list %}
+                            <tr>
+                                <td>{{ seccion.codigo }}</td>
+                                <td>{{ seccion.id_subgrupo }}</td>
+                                <td>{{ seccion.nombre }}</td>
+                                <td>{{ seccion.descripcion }}</td>
+                                <td class="text-center action-buttons">
+                                    <a href="{% url 'seccionsubgrupo_update' seccion.pk %}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No hay secciones registradas.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('input[name="search"]').addEventListener('input', function(e) {
+        let timeoutId;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            this.form.submit();
+        }, 500);
+    });
+</script>
+{% endblock %}

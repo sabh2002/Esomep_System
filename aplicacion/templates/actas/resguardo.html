@@ -1,0 +1,59 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE ENTRADA A RESGUARDO</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_actual }}, se procede al resguardo del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr><th>Número de Identificación</th><td>{{ bien.numero_de_identificacion }}</td></tr>
+        <tr><th>Nombre del Bien</th><td>{{ bien.nombre }}</td></tr>
+        <tr>
+            <th>Origen</th>
+            <td>{{ origen_completo|linebreaks }}</td>
+        </tr>
+        <tr><th>Ubicación de Resguardo</th><td>{{ detalles.ubicacion_resguardo|default:"" }}</td></tr>
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN GENERAL:</h3>
+        <p>{{ descripcion }}</p>
+
+        {% if detalles.motivo_resguardo %}
+        <h3>MOTIVO DEL RESGUARDO:</h3>
+        <p>{{ detalles.motivo_resguardo }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>
+        {% if UnidadOrganizacional_origen %}
+            {{ UnidadOrganizacional_origen.nombre }}
+            {% if departamento_origen %}<br>{% endif %}
+        {% endif %}
+        {% if departamento_origen %}
+            {{ departamento_origen.nombre_departamento }}
+        {% endif %}
+        </p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>DEPARTAMENTO DE BIENES</p>
+    </div>
+</div>
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+{% endblock %}

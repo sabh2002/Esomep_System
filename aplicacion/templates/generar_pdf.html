@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Generar Documento {{ tipo_evento }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'guardar_descripcion_pdf' historial.id %}">
+                {% csrf_token %}
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Descripción para el documento:</label>
+                    <textarea class="form-control" name="descripcion" rows="4" required></textarea>
+                </div>
+
+                {% if tipo_evento == 'MANTENIMIENTO' %}
+                <div class="form-group mb-3">
+                    <label class="form-label">Detalles del mantenimiento:</label>
+                    <div class="mb-2">
+                        <label class="form-label">Tipo de mantenimiento:</label>
+                        <select class="form-control" name="tipo_mantenimiento" required>
+                            <option value="preventivo">Preventivo</option>
+                            <option value="correctivo">Correctivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Fallas encontradas:</label>
+                        <textarea class="form-control" name="fallas_encontradas" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Solución aplicada:</label>
+                        <textarea class="form-control" name="solucion_aplicada" required></textarea>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_evento == 'TRASLADO_TEMPORAL' %}
+                <div class="form-group mb-3">
+                    <label class="form-label">Detalles del traslado:</label>
+                    <div class="mb-2">
+                        <label class="form-label">Motivo del traslado:</label>
+                        <input type="text" class="form-control" name="motivo_traslado" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Tiempo estimado:</label>
+                        <input type="text" class="form-control" name="tiempo_estimado" required>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_evento == 'DESINCORPORACION' %}
+                <div class="form-group mb-3">
+                    <label class="form-label">Detalles de la desincorporación:</label>
+                    <div class="mb-2">
+                        <label class="form-label">Motivo de desincorporación:</label>
+                        <select class="form-control" name="motivo_desincorporacion" required>
+                            <option value="obsolescencia">Obsolescencia</option>
+                            <option value="daño">Daño irreparable</option>
+                            <option value="perdida">Pérdida</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Explicación detallada:</label>
+                        <textarea class="form-control" name="explicacion_desincorporacion" required></textarea>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_evento == 'RESGUARDO' %}
+                <div class="form-group mb-3">
+                    <label class="form-label">Detalles del resguardo:</label>
+                    <div class="mb-2">
+                        <label class="form-label">Motivo del resguardo:</label>
+                        <input type="text" class="form-control" name="motivo_resguardo" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Ubicación de resguardo:</label>
+                        <input type="text" class="form-control" name="ubicacion_resguardo" required>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Generar PDF</button>
+                    <a href="{% url 'historial_bien' historial.bien_id.id_bienes %}" class="btn btn-secondary ms-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

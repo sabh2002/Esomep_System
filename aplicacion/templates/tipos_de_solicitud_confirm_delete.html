@@ -1,0 +1,17 @@
+<!-- templates/tipos_de_solicitud_confirm_delete.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Solicitud</title>
+</head>
+<body>
+    <h1>Eliminar Solicitud</h1>
+    <p>¿Estás seguro de que deseas eliminar la solicitud "{{ object.nombre }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Eliminar</button>
+        <a href="{% url 'tipos-de-solicitud-list' %}">Cancelar</a>
+    </form>
+</body>
+</html>

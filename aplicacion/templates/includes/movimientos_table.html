@@ -1,0 +1,47 @@
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>N° Identificación</th>
+            <th>Bien</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Incorporaciones Bs.</th>
+            <th>Desincorporaciones Bs.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mov in movimientos %}
+        <tr>
+            <td>{{ mov.fecha_evento|date:"d/m/Y" }}</td>
+            <td>{{ mov.bien_id.numero_de_identificacion }}</td>
+            <td>{{ mov.bien_id.nombre }}</td>
+            <td class="text-center">
+                <span class="badge {% if mov.id_tipos_de_evento.nombre in 'INCORPORACION,ASIGNACION' %}badge-incorporacion{% else %}badge-desincorporacion{% endif %}">
+                    {{ mov.id_tipos_de_evento.get_nombre_display }}
+                </span>
+            </td>
+            <td>{{ mov.descripcion }}</td>
+            <td class="text-right">
+                {% if mov.id_tipos_de_evento.nombre in 'INCORPORACION,ASIGNACION' %}
+                    Bs. {{ mov.bien_id.incorporacion|floatformat:2 }}
+                {% else %}
+                    Bs. 0,00
+                {% endif %}
+            </td>
+            <td class="text-right">
+                {% if mov.id_tipos_de_evento.nombre == 'DESINCORPORACION' %}
+                    Bs. {{ mov.bien_id.incorporacion|floatformat:2 }}
+                {% else %}
+                    Bs. 0,00
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr class="subtotal-row">
+            <td colspan="5" class="text-right">{{ subtotal_title }}:</td>
+            <td class="text-right">Bs. {{ total_incorporaciones|floatformat:2 }}</td>
+            <td class="text-right">Bs. {{ total_desincorporaciones|floatformat:2 }}</td>
+        </tr>
+    </tbody>
+</table>

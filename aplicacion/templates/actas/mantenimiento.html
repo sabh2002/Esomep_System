@@ -1,0 +1,66 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE ENTRADA A MANTENIMIENTO</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_actual }}, se procede a registrar la entrada a mantenimiento del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr>
+            <th>Número de Identificación</th>
+            <td>{{ bien.numero_de_identificacion }}</td>
+        </tr>
+        <tr>
+            <th>Nombre del Bien</th>
+            <td>{{ bien.nombre }}</td>
+        </tr>
+        <tr>
+            <th>Departamento Origen</th>
+            <td>{{ departamento_origen.nombre_departamento }}</td>
+        </tr>
+        <tr>
+            <th>Tipo de Mantenimiento</th>
+            <td>{{ detalles.tipo_mantenimiento|default:"" }}</td>
+        </tr>
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN GENERAL:</h3>
+        <p>{{ descripcion }}</p>
+
+        <h3>FALLAS ENCONTRADAS:</h3>
+        <p>{{ detalles.fallas_encontradas }}</p>
+
+        <h3>SOLUCIÓN A APLICAR:</h3>
+        <p>{{ detalles.solucion_aplicada }}</p>
+    </div>
+
+    <p>Este bien quedará bajo resguardo del departamento de mantenimiento hasta su reparación.</p>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>
+        {{ departamento_origen.nombre_departamento }}</p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>
+        DEPARTAMENTO DE MANTENIMIENTO</p>
+    </div>
+</div>
+
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+{% endblock %}

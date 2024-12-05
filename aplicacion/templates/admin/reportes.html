@@ -1,0 +1,356 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_content %}
+<style>
+    /* Estilos base */
+    .reports-container {
+        padding: 2rem;
+        background: #f8fafc;
+    }
+    
+    .reports-title {
+        color: #003366;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    
+    .reports-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #003366, #0066cc);
+        border-radius: 3px;
+    }
+    
+    /* Grid de estadísticas */
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* Iconos y colores */
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon.blue { background: #0ea5e925; color: #0ea5e9; }
+    .stat-icon.green { background: #22c55e25; color: #22c55e; }
+    .stat-icon.orange { background: #f9731625; color: #f97316; }
+    .stat-icon.red { background: #ef444425; color: #ef4444; }
+    
+    .stat-info {
+        flex: 1;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+    
+    /* Contenedores de categorías */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-category {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .stats-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .stats-content {
+        padding: 1.5rem;
+    }
+    
+    /* Filtros de tiempo */
+    .time-filter {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .time-filter button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        background: #f1f5f9;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .time-filter button.active {
+        background: #003366;
+        color: white;
+    }
+    
+    /* Acciones rápidas */
+    .quick-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #1e293b;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        background: #003366;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Gráficos y barras de progreso */
+    .efficiency-indicator {
+        width: 100%;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .efficiency-bar {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    /* Tablas de datos */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    .data-table th, 
+    .data-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .data-table th {
+        background: #f8fafc;
+        font-weight: 600;
+    }
+    
+    .data-table tr:hover {
+        background: #f1f5f9;
+    }
+    
+    /* Estilos móviles */
+    @media (max-width: 768px) {
+        .reports-container {
+            padding: 1rem;
+        }
+    
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    
+        .time-filter {
+            flex-wrap: wrap;
+        }
+    
+        .quick-actions {
+            flex-direction: column;
+        }
+    }
+    </style>
+
+    <div class="reports-container">
+        <h1 class="reports-title"> Estadísticas</h1>
+    
+        <!-- Filtros de Tiempo -->
+
+        <!-- Resumen General -->
+        <div class="stats-overview">
+            <!-- Resumen General -->
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats.total_bienes }}</div>
+                    <div class="stat-label">Total de Bienes</div>
+                    <div class="stat-sublabel">{{ stats.porcentaje_operatividad }}% Operativos</div>
+                </div>
+            </div>
+        
+            <div class="stat-card">
+                <div class="stat-icon {% if stats.bienes_no_operativos > 0 %}red{% else %}green{% endif %}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats.bienes_no_operativos }}</div>
+                    <div class="stat-label">Bienes No Operativos</div>
+                </div>
+            </div>
+        
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats.total_mantenimiento }}</div>
+                    <div class="stat-label">En Mantenimiento</div>
+                    <div class="stat-sublabel">{{ stats.promedio_dias_mantenimiento }} días promedio</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertas de Departamentos -->
+        <div class="stats-category">
+            <div class="stats-header">
+                <i class="fas fa-exclamation-circle"></i>
+                Departamentos con Alertas
+            </div>
+            <div class="stats-content">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Departamento</th>
+                            <th>Bienes No Operativos</th>
+                            <th>% del Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in stats.departamentos_alertas %}
+                        <tr>
+                            <td>{{ dept.nombre_departamento }}</td>
+                            <td>{{ dept.bienes_no_operativos }}</td>
+                            <td>{{ dept.porcentaje_no_operativos|floatformat:1 }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Solicitudes Pendientes -->
+        <div class="stats-category">
+            <div class="stats-header">
+                <i class="fas fa-clipboard-list"></i>
+                Solicitudes Pendientes por Tipo
+            </div>
+            <div class="stats-content">
+                {% for solicitud in stats.solicitudes_pendientes %}
+                <div class="stat-item">
+                    <span class="stat-item-label">{{ solicitud.id_tipos_de_solicitud__nombre }}</span>
+                    <span class="stat-item-value">{{ solicitud.total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Últimas Desincorporaciones -->
+        <div class="stats-category">
+            <div class="stats-header">
+                <i class="fas fa-archive"></i>
+                Últimas Desincorporaciones
+            </div>
+            <div class="stats-content">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bien</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for desinc in stats.ultimas_desincorporaciones %}
+                        <tr>
+                            <td>{{ desinc.bien_id.nombre }}</td>
+                            <td>{{ desinc.fecha_evento|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+    <script>
+    function updateStats(period) {
+        const buttons = document.querySelectorAll('.time-filter button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    
+    function exportStats() {
+        const format = prompt('Seleccione formato de exportación (CSV/Excel/PDF):', 'CSV');
+        if (format) {
+            alert(`Exportando estadísticas en formato ${format}...`);
+        }
+    }
+    
+    function printReport() {
+        window.print();
+    }
+    </script>
+{% endblock %}

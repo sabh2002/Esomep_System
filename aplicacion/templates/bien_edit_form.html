@@ -1,0 +1,1087 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Bien</title>
+    <style>
+         /* Estilos existentes */
+         body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background-color: #003366;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 400;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            color: #495057;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button:hover {
+            background-color: #e9ecef;
+        }
+
+        .tab-button.active {
+            color: #003366;
+            border-bottom-color: #003366;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -10px;
+        }
+
+        .form-group {
+            flex: 1 1 calc(50% - 20px);
+            margin: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="file"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+    
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+    
+        .nav-button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+    
+        .nav-button:hover {
+            background-color: #002244;
+        }
+    
+        .nav-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #e9ecef;
+            height: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #003366;
+            transition: width 500ms ease-in-out;
+        }
+
+        .input-error {
+            border-color: #dc3545;
+        }
+
+
+        
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .mensaje-confirmacion {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            width: 400px;
+        }
+
+        .mensaje-confirmacion h2 {
+            color: #003366;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-confirmacion p {
+            margin-bottom: 15px;
+        }
+
+        .mensaje-confirmacion button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .mensaje-confirmacion button:hover {
+            background-color: #002244;
+        }
+
+        #descripciones {
+            margin-top: 20px;
+        }
+        .descripcion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .descripcion-item label {
+            font-weight: bold;
+        }
+        #add-descripcion {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #add-descripcion:hover {
+            background-color: #218838;
+        }
+        .remove-descripcion {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .remove-descripcion:hover {
+            background-color: #c82333;
+        }
+
+        .section-title {
+            color: #003366;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    
+        .especificacion-item,
+        .descripcion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+    
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+    
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-size: 1em;
+        }
+    
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        .section-title {
+            color: #003366;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    
+        .especificacion-item,
+        .descripcion-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+    
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-size: 1em;
+        }
+    
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        .numero-feedback {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .numero-feedback.validating::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid #003366;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        .numero-feedback.valid::after {
+            content: '✓';
+            color: #198754;
+            font-weight: bold;
+        }
+        
+        .numero-feedback.invalid::after {
+            content: '✕';
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .validation-message {
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        
+        .validation-message.valid {
+            color: #198754;
+        }
+        
+        .validation-message.invalid {
+            color: #dc3545;
+        }
+        .btn-cancel {
+            background-color: #dc3545;
+        }
+
+        .btn-cancel:hover {
+            background-color: #c82333;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Editar Bien</h1>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <form id="bienEditForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="tab-navigation">
+                <button type="button" class="tab-button active" data-tab="info-general">Información General</button>
+                <button type="button" class="tab-button" data-tab="detalles-movimiento">Detalles de Movimiento</button>
+                <button type="button" class="tab-button" data-tab="especificaciones">Especificaciones</button>
+                <button type="button" class="tab-button" data-tab="descripciones">Descripciones</button>
+                <button type="button" class="tab-button" data-tab="info-adicional">Información Adicional</button>
+            </div>
+
+            <div id="info-general" class="tab-content active">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.tipo_bien.id_for_label }}">Tipo de Bien: *</label>
+                        {{ form.tipo_bien }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_grupo.id_for_label }}">Grupo: *</label>
+                        {{ form.id_grupo }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.id_subgrupo.id_for_label }}">Subgrupo: *</label>
+                        {{ form.id_subgrupo }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_seccion_subgrupo.id_for_label }}">Sección:</label>
+                        {{ form.id_seccion_subgrupo }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.nombre.id_for_label }}">Nombre: *</label>
+                        {{ form.nombre }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.numero_de_identificacion.id_for_label }}">Número de Inventario: *</label>
+                        <div class="input-group">
+                            {{ form.numero_de_identificacion }}
+                            {{ form.numero_de_identificacion_original }}
+                            <div class="validation-feedback" id="numero-feedback"></div>
+                        </div>
+                        {% if form.instance.pk %}
+                            <small class="form-text text-muted w-100">
+                                Número actual: {{ form.numero_de_identificacion_original.value }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="detalles-movimiento" class="tab-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.id_concepto_de_movimiento.id_for_label }}">Concepto de Movimiento: *</label>
+                        {{ form.id_concepto_de_movimiento }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.incorporacion.id_for_label }}">Incorporación: *</label>
+                        {{ form.incorporacion }}
+                    </div>
+                </div>
+            </div>
+
+
+ <!-- Sección de Especificaciones -->
+<div id="especificaciones" class="tab-content">
+    <h3 class="section-title">Especificaciones del Bien</h3>
+    {{ especificacion_formset.management_form }}
+    <div id="especificacion-container">
+        {% for form in especificacion_formset %}
+        <div class="especificacion-item">
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="{{ form.especificacion.auto_id }}">Especificación:</label>
+                    {{ form.especificacion }}
+                    {% if form.especificacion.errors %}
+                        <div class="error-message">{{ form.especificacion.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="{{ form.descripcion_especificacion.auto_id }}">Descripción:</label>
+                    {{ form.descripcion_especificacion }}
+                    {% if form.descripcion_especificacion.errors %}
+                        <div class="error-message">{{ form.descripcion_especificacion.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <button type="button" class="btn-remove remove-especificacion">Eliminar</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add-especificacion" class="btn-add">Agregar Especificación</button>
+</div>
+
+<!-- Sección de Descripciones -->
+<div id="descripciones" class="tab-content">
+    <h3 class="section-title">Descripciones del Bien</h3>
+    {{ descripcion_formset.management_form }}
+    <div id="descripcion-container">
+        {% for form in descripcion_formset %}
+        <div class="descripcion-item">
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="{{ form.descripcion.auto_id }}">Descripción:</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="error-message">{{ form.descripcion.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="{{ form.estado.auto_id }}">Estado:</label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}
+                        <div class="error-message">{{ form.estado.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <button type="button" class="btn-remove remove-descripcion">Eliminar</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add-descripcion" class="btn-add">Agregar Descripción</button>
+</div>
+
+
+            <div id="info-adicional" class="tab-content">
+                <div class="form-group">
+                    <label for="{{ form.observacion.id_for_label }}">Observación:</label>
+                    {{ form.observacion }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.condicion.id_for_label }}">Condición:</label>
+                    {{ form.condicion }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.archivo_multimedia.id_for_label }}">Archivo Multimedia:</label>
+                    {{ form.archivo_multimedia }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.fecha_de_registro.id_for_label }}">Fecha de Registro: *</label>
+                    {{ form.fecha_de_registro }}
+                </div>
+            </div>
+    
+            
+            <div class="navigation-buttons">
+                <button type="button" class="nav-button btn-cancel" onclick="window.location.href='{% url 'bien_list' %}'">Cancelar</button>
+                <div>
+                    <button type="button" id="nextBtn" class="nav-button">Siguiente</button>
+                    <button type="submit" id="submitBtn" class="nav-button" style="display: none;">Guardar Cambios</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Objeto para manejar toda la funcionalidad del formulario
+            const FormManager = {
+                init() {
+                    // Elementos del DOM
+                    this.form = document.getElementById('bienEditForm');
+                    this.tabs = document.querySelectorAll('.tab-button');
+                    this.contents = document.querySelectorAll('.tab-content');
+                    this.nextBtn = document.getElementById('nextBtn');
+                    this.submitBtn = document.getElementById('submitBtn');
+                    this.progressBar = document.querySelector('.progress');
+                    this.descripcionContainer = document.getElementById('descripcion-container');
+                    this.especificacionContainer = document.getElementById('especificacion-container');
+                    
+                    // Estado
+                    this.currentTab = 0;
+                    this.setupEventListeners();
+                    this.showTab(0);
+                    this.setupFormsets();
+                },
+        
+                setupEventListeners() {
+                    // Evento para el botón siguiente
+                    this.nextBtn.addEventListener('click', () => this.nextPrev(1));
+        
+                    // Eventos para los botones de pestaña
+                    this.tabs.forEach((tab, index) => {
+                        tab.addEventListener('click', () => {
+                            if (this.validateTab(this.currentTab)) {
+                                this.showTab(index);
+                            }
+                        });
+                    });
+        
+                    // Validación en tiempo real de campos requeridos
+                    this.form.querySelectorAll('input, select, textarea').forEach(input => {
+                        if (input.hasAttribute('required') || input.dataset.required === 'true') {
+                            input.addEventListener('input', () => this.validateField(input));
+                            input.addEventListener('blur', () => this.validateField(input));
+                        }
+                    });
+        
+                    // Evento para envío del formulario
+                    this.form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if (this.validateForm()) {
+                            this.submitForm();
+                        }
+                    });
+                },
+        
+                setupFormsets() {
+                    // Configurar formset de descripciones
+                    const addDescripcionBtn = document.getElementById('add-descripcion');
+                    if (addDescripcionBtn) {
+                        addDescripcionBtn.addEventListener('click', () => this.addFormsetItem('descripcion'));
+                    }
+        
+                    // Configurar formset de especificaciones
+                    const addEspecificacionBtn = document.getElementById('add-especificacion');
+                    if (addEspecificacionBtn) {
+                        addEspecificacionBtn.addEventListener('click', () => this.addFormsetItem('especificacion'));
+                    }
+        
+                    // Configurar eliminación de items
+                    document.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('remove-descripcion')) {
+                            this.removeFormsetItem(e.target, 'descripcion');
+                        }
+                        if (e.target.classList.contains('remove-especificacion')) {
+                            this.removeFormsetItem(e.target, 'especificacion');
+                        }
+                    });
+                },
+        
+                addFormsetItem(type) {
+                    const container = type === 'descripcion' ? this.descripcionContainer : this.especificacionContainer;
+                    const items = container.querySelectorAll(`.${type}-item`);
+                    const totalForms = document.getElementById(`id_${type}-TOTAL_FORMS`);
+                    const newItem = items[0].cloneNode(true);
+                    
+                    // Limpiar valores del nuevo item
+                    newItem.querySelectorAll('input, select').forEach(input => {
+                        input.value = '';
+                        const name = input.getAttribute('name').replace(/-\d+-/, `-${items.length}-`);
+                        const id = input.getAttribute('id').replace(/-\d+-/, `-${items.length}-`);
+                        input.setAttribute('name', name);
+                        input.setAttribute('id', id);
+                    });
+        
+                    container.appendChild(newItem);
+                    totalForms.value = items.length + 1;
+                },
+        
+                removeFormsetItem(button, type) {
+                    const container = type === 'descripcion' ? this.descripcionContainer : this.especificacionContainer;
+                    const items = container.querySelectorAll(`.${type}-item`);
+                    
+                    if (items.length > 1) {
+                        const item = button.closest(`.${type}-item`);
+                        item.remove();
+                        this.updateFormIndexes(type);
+                    } else {
+                        Swal.fire({
+                            title: 'Atención',
+                            text: `Debe haber al menos un ${type}`,
+                            icon: 'warning',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                },
+        
+                updateFormIndexes(type) {
+                    const container = type === 'descripcion' ? this.descripcionContainer : this.especificacionContainer;
+                    const items = container.querySelectorAll(`.${type}-item`);
+                    const totalForms = document.getElementById(`id_${type}-TOTAL_FORMS`);
+        
+                    items.forEach((item, index) => {
+                        item.querySelectorAll('input, select').forEach(input => {
+                            const name = input.getAttribute('name').replace(/-\d+-/, `-${index}-`);
+                            const id = input.getAttribute('id').replace(/-\d+-/, `-${index}-`);
+                            input.setAttribute('name', name);
+                            input.setAttribute('id', id);
+                        });
+                    });
+        
+                    totalForms.value = items.length;
+                },
+        
+                showTab(n) {
+                    // Ocultar todas las pestañas
+                    this.contents.forEach(content => content.style.display = 'none');
+                    this.tabs.forEach(tab => tab.classList.remove('active'));
+        
+                    // Mostrar la pestaña actual
+                    this.contents[n].style.display = 'block';
+                    this.tabs[n].classList.add('active');
+                    this.currentTab = n;
+        
+                    // Actualizar botones
+                    if (n === this.tabs.length - 1) {
+                        this.nextBtn.style.display = 'none';
+                        this.submitBtn.style.display = 'inline';
+                    } else {
+                        this.nextBtn.style.display = 'inline';
+                        this.submitBtn.style.display = 'none';
+                    }
+        
+                    // Actualizar barra de progreso
+                    const progress = ((n + 1) / this.tabs.length) * 100;
+                    this.progressBar.style.width = `${progress}%`;
+                },
+        
+                nextPrev(n) {
+                    if (this.validateTab(this.currentTab)) {
+                        const newTab = this.currentTab + n;
+                        if (newTab >= 0 && newTab < this.tabs.length) {
+                            this.showTab(newTab);
+                        }
+                    }
+                },
+        
+                validateField(input) {
+                    const isValid = input.value.trim() !== '';
+                    input.classList.toggle('is-invalid', !isValid);
+                    
+                    const errorDiv = input.parentNode.querySelector('.invalid-feedback');
+                    if (!isValid) {
+                        if (!errorDiv) {
+                            const div = document.createElement('div');
+                            div.className = 'invalid-feedback';
+                            div.textContent = 'Este campo es requerido';
+                            input.parentNode.appendChild(div);
+                        }
+                    } else if (errorDiv) {
+                        errorDiv.remove();
+                    }
+                    
+                    return isValid;
+                },
+        
+                validateTab(tabIndex) {
+                    const currentContent = this.contents[tabIndex];
+                    let isValid = true;
+                    
+                    currentContent.querySelectorAll('input, select, textarea').forEach(input => {
+                        if (input.hasAttribute('required') || input.dataset.required === 'true') {
+                            if (!this.validateField(input)) {
+                                isValid = false;
+                            }
+                        }
+                    });
+        
+                    return isValid;
+                },
+        
+                validateForm() {
+                    let isValid = true;
+                    this.tabs.forEach((_, index) => {
+                        if (!this.validateTab(index)) {
+                            isValid = false;
+                        }
+                    });
+                    return isValid;
+                },
+        
+                clearFormErrors() {
+                    this.form.querySelectorAll('.is-invalid').forEach(element => {
+                        element.classList.remove('is-invalid');
+                    });
+        
+                    this.form.querySelectorAll('.invalid-feedback').forEach(element => {
+                        element.remove();
+                    });
+                },
+        
+                handleFormErrors(errors) {
+                    this.clearFormErrors();
+        
+                    // Manejar errores del formulario principal
+                    if (errors.form_errors) {
+                        Object.keys(errors.form_errors).forEach(field => {
+                            const input = this.form.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback';
+                                errorDiv.textContent = errors.form_errors[field].join(', ');
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                    }
+        
+                    // Manejar errores de descripciones
+                    if (errors.descripcion_errors?.length) {
+                        errors.descripcion_errors.forEach((error, index) => {
+                            const form = this.descripcionContainer.querySelectorAll('.descripcion-item')[index];
+                            if (form) {
+                                this.showFormsetErrors(form, error);
+                            }
+                        });
+                    }
+        
+                    // Manejar errores de especificaciones
+                    if (errors.especificacion_errors?.length) {
+                        errors.especificacion_errors.forEach((error, index) => {
+                            const form = this.especificacionContainer.querySelectorAll('.especificacion-item')[index];
+                            if (form) {
+                                this.showFormsetErrors(form, error);
+                            }
+                        });
+                    }
+                },
+        
+                showFormsetErrors(form, errors) {
+                    Object.keys(errors).forEach(field => {
+                        const input = form.querySelector(`[name*="${field}"]`);
+                        if (input) {
+                            input.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = errors[field].join(', ');
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    });
+                },
+        
+                submitForm() {
+                    this.clearFormErrors();
+                    const formData = new FormData(this.form);
+        
+                    fetch(this.form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Éxito!',
+                                text: 'Los cambios se guardaron correctamente',
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                window.location.href = data.redirect_url;
+                            });
+                        } else {
+                            this.handleFormErrors(data.errors);
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Por favor, corrige los errores en el formulario',
+                                icon: 'error',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Hubo un error en la comunicación con el servidor',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    });
+                }
+            };
+        
+            // Inicializar el gestor del formulario
+            FormManager.init();
+        });
+    </script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const numeroInput = document.getElementById('{{ form.numero_de_identificacion.auto_id }}');
+                const numeroOriginal = document.getElementById('{{ form.numero_de_identificacion_original.auto_id }}');
+                const feedbackDiv = document.getElementById('numero-feedback');
+                let timeoutId = null;
+            
+                function validateNumero(numero) {
+                    // Si el número no ha cambiado del original, no validar
+                    if (numeroOriginal && numero === numeroOriginal.value) {
+                        feedbackDiv.textContent = '';
+                        feedbackDiv.className = 'validation-feedback';
+                        numeroInput.classList.remove('is-valid', 'is-invalid', 'is-validating');
+                        return;
+                    }
+            
+                    // Validaciones básicas
+                    if (!numero) {
+                        showFeedback(false, 'El número de identificación es requerido.');
+                        return;
+                    }
+            
+                    if (!/^\d+$/.test(numero)) {
+                        showFeedback(false, 'El número debe contener solo dígitos.');
+                        return;
+                    }
+            
+                    // Mostrar estado de validación
+                    numeroInput.classList.add('is-validating');
+                    numeroInput.classList.remove('is-valid', 'is-invalid');
+                    feedbackDiv.textContent = 'Verificando disponibilidad...';
+                    feedbackDiv.className = 'validation-feedback';
+            
+                    // Realizar la consulta AJAX
+                    const idBien = '{{ form.instance.pk|default:"" }}';
+                    fetch(`/verificar-numero-identificacion/?numero=${numero}&id_bien=${idBien}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            showFeedback(data.valid, data.message);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showFeedback(false, 'Error al verificar el número.');
+                        });
+                }
+            
+                function showFeedback(isValid, message) {
+                    feedbackDiv.textContent = message;
+                    feedbackDiv.className = `validation-feedback ${isValid ? 'is-valid' : 'is-invalid'}`;
+                    numeroInput.classList.remove('is-validating');
+                    numeroInput.classList.toggle('is-valid', isValid);
+                    numeroInput.classList.toggle('is-invalid', !isValid);
+                }
+            
+                // Evento input con debounce
+                numeroInput.addEventListener('input', function(e) {
+                    // Permitir solo números
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Cancelar el timeout anterior si existe
+                    if (timeoutId) clearTimeout(timeoutId);
+                    
+                    // Configurar nuevo timeout
+                    timeoutId = setTimeout(() => {
+                        validateNumero(this.value);
+                    }, 500); // Esperar 500ms después de que el usuario deje de escribir
+                });
+            
+                // Validar al cargar si hay un valor
+                if (numeroInput.value) {
+                    validateNumero(numeroInput.value);
+                }
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const grupoSelect = document.getElementById('id_id_grupo');
+                const subgrupoSelect = document.getElementById('id_id_subgrupo');
+                const seccionSelect = document.getElementById('id_id_seccion_subgrupo');
+                
+                // Variables para almacenar los valores preseleccionados
+                const preselectedSubgrupo = '{{ form.initial.id_subgrupo }}';
+                const preselectedSeccion = '{{ form.initial.id_seccion_subgrupo }}';
+                
+                // Función para actualizar subgrupos
+                async function updateSubgrupos() {
+                    const grupoId = grupoSelect.value;
+                    
+                    // Limpiar subgrupo y sección
+                    subgrupoSelect.innerHTML = '<option value="">---------</option>';
+                    seccionSelect.innerHTML = '<option value="">---------</option>';
+                    
+                    if (grupoId) {
+                        try {
+                            const response = await fetch(`/get-subgrupos/?grupo_id=${grupoId}`);
+                            const data = await response.json();
+                            
+                            data.subgrupos.forEach(subgrupo => {
+                                const option = new Option(`${subgrupo.codigo} - ${subgrupo.nombre}`, subgrupo.id_subgrupo);
+                                subgrupoSelect.add(option);
+                            });
+                            
+                            
+                            // Si hay un subgrupo preseleccionado, seleccionarlo
+                            if (preselectedSubgrupo) {
+                                subgrupoSelect.value = preselectedSubgrupo;
+                                // Disparar el evento change para cargar las secciones
+                                await updateSecciones();
+                            }
+                        } catch (error) {
+                            console.error('Error cargando subgrupos:', error);
+                        }
+                    }
+                }
+                
+                // Función para actualizar secciones
+                async function updateSecciones() {
+                    const subgrupoId = subgrupoSelect.value;
+                    
+                    // Limpiar sección
+                    seccionSelect.innerHTML = '<option value="">---------</option>';
+                    
+                    if (subgrupoId) {
+                        try {
+                            const response = await fetch(`/get-secciones/?subgrupo_id=${subgrupoId}`);
+                            const data = await response.json();
+                            
+                            data.secciones.forEach(seccion => {
+                                const option = new Option(`${seccion.codigo} - ${seccion.nombre}`, seccion.id_seccion_subgrupo);
+                                seccionSelect.add(option);
+                            });
+                            
+                            // Si hay una sección preseleccionada, seleccionarla
+                            if (preselectedSeccion) {
+                                seccionSelect.value = preselectedSeccion;
+                            }
+                        } catch (error) {
+                            console.error('Error cargando secciones:', error);
+                        }
+                    }
+                }
+                
+                // Event listeners
+                grupoSelect.addEventListener('change', updateSubgrupos);
+                subgrupoSelect.addEventListener('change', updateSecciones);
+                
+                // Cargar valores iniciales si hay un grupo seleccionado
+                if (grupoSelect.value) {
+                    updateSubgrupos();
+                }
+            });
+            </script>
+        
+
+    <!-- SweetAlert2 para mensajes -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>
+{% endblock %}

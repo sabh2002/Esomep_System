@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Arial', sans-serif;
+    }
+    
+    .container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background-color: #003366;
+        color: #fff;
+        padding: 1rem 1.5rem;
+        border-bottom: none;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 400;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .user-info {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #003366;
+    }
+
+    .user-info h4 {
+        color: #003366;
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    label {
+        display: block;
+        color: #495057;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        height: 38px;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+        gap: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        border-radius: 4px;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border: none;
+        color: #fff;
+        min-width: 140px;
+    }
+
+    .btn-primary:hover {
+        background-color: #002244;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .password-requirements {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+            margin: 20px auto;
+        }
+
+        .buttons-container {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Restablecer Contraseña</h2>
+        </div>
+        <div class="card-body">
+            <div class="user-info">
+                <h4>Usuario: {{ usuario.cedula }}</h4>
+            </div>
+
+            <form method="post" id="resetPasswordForm">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        <input type="password" 
+                               name="{{ field.name }}"
+                               id="{{ field.auto_id }}"
+                               class="form-control {% if field.errors %}is-invalid{% endif %}"
+                               {% if field.field.required %}required{% endif %}>
+                        {% if field.help_text %}
+                            <div class="password-requirements">
+                                {{ field.help_text|safe }}
+                            </div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="buttons-container">
+                    <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Restablecer Contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('resetPasswordForm');
+        const passwordInputs = form.querySelectorAll('input[type="password"]');
+
+        // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            let hasError = false;
+            passwordInputs.forEach(input => {
+                if (!input.value) {
+                    hasError = true;
+                    input.classList.add('is-invalid');
+                    if (!input.nextElementSibling?.classList.contains('invalid-feedback')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = 'Este campo es requerido';
+                        input.parentNode.insertBefore(errorDiv, input.nextSibling);
+                    }
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault();
+            }
+        });
+
+        // Limpiar mensajes de error al escribir
+        passwordInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                const errorDiv = this.nextElementSibling;
+                if (errorDiv?.classList.contains('invalid-feedback')) {
+                    errorDiv.remove();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

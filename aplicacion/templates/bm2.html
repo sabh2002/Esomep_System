@@ -1,0 +1,303 @@
+{% load static %}
+<style>
+    @page {
+        size: landscape;
+        margin: 15mm;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+    .header-container {
+        width: 100%;
+        height: 70px;
+        position: relative;
+        margin-bottom: 5px;
+    }
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        position: absolute;
+        width: 100%;
+        top: 0;
+    }
+    .logo-izq, .logo-der {
+        height: 60px;
+        width: auto;
+    }
+    .header {
+        text-align: center;
+        padding-top: 35px;
+    }
+    .title {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 3px 0;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 15px 0;
+    }
+    .info-section {
+        margin-bottom: 15px;
+    }
+    .info-section p {
+        margin: 3px 0;
+        font-size: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 4px;
+        font-size: 9px;
+    }
+    th {
+        background-color: #f2f2f2;
+        text-align: center;
+        font-weight: bold;
+    }
+    .text-right {
+        text-align: right;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .footer {
+        margin-top: 20px;
+        text-align: center;
+        page-break-inside: avoid;
+    }
+    .signature {
+        margin-top: 30px;
+        border-top: 1px solid #000;
+        display: inline-block;
+        padding: 8px 20px;
+        font-size: 10px;
+    }
+    .location-title {
+        font-size: 12px;
+        font-weight: bold;
+        margin: 15px 0 10px 0;
+        padding: 5px 10px;
+        background-color: #f2f2f2;
+        border: 1px solid #000;
+        text-align: center;
+    }
+    .totals-section {
+        margin-top: 20px;
+        border-top: 2px solid #000;
+        padding-top: 10px;
+        page-break-inside: avoid;
+    }
+    .subtotal-row {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    .valor-column {
+        text-align: right;
+    }
+    .desincorporacion-row {
+        background-color: #fff0f0;
+    }
+    .incorporacion-row {
+        background-color: #f0fff0;
+    }
+    .period-info {
+        text-align: center;
+        font-weight: bold;
+        margin: 10px 0;
+        font-size: 11px;
+    }
+    .page-break {
+        page-break-before: always;
+    }
+</style>
+
+<div class="page-number">FORMULARIO BM-2</div>
+
+<div class="header-container">
+    <div class="logo-container">
+        {% if logo_portuguesa_base64 %}
+        <img class="logo-izq" src="data:image/png;base64,{{ logo_portuguesa_base64 }}" alt="Logo Portuguesa" />
+        {% endif %}
+        {% if logo_esomep_base64 %}
+        <img class="logo-der" src="data:image/png;base64,{{ logo_esomep_base64 }}" alt="Logo ESOMEP" />
+        {% endif %}
+    </div>
+</div>
+
+<div class="header">
+    <h1 class="title">RELACIÓN DE MOVIMIENTO DE BIENES MUEBLES</h1>
+    <div class="period-info">
+        PERÍODO: {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
+    </div>
+</div>
+
+<div class="info-section">
+    <div class="info-grid">
+        <div>
+            <p>1. ESTADO: PORTUGUESA</p>
+            <p>2. MUNICIPIO: GUANARE</p>
+            <p>3. DIRECCIÓN O LUGAR: AV. PRINCIPAL LA IMPORTANCIA GUANARE</p>
+        </div>
+        <div>
+            <p>4. DEPENDENCIA O UNIDAD PRIMARIA: ESOMEP S.A.</p>
+            <p>5. SERVICIO: ARCHIVO</p>
+            <p>6. UNIDAD DE TRABAJO O DEPENDENCIA: GERENCIA DE OPERACIONES Y SERVICIOS GENERALES</p>
+        </div>
+    </div>
+</div>
+
+{% for unidad, data in unidades_data.items %}
+    {% if not forloop.first %}
+        <div class="page-break"></div>
+    {% endif %}
+
+    <div class="location-title">
+        UNIDAD ORGANIZACIONAL: {{ data.nombre }}
+    </div>
+
+    {% if data.movimientos_directos %}
+    <table>
+        <thead>
+            <tr>
+                <th colspan="3">Clasificación (código)</th>
+                <th rowspan="2">Concepto de movimiento</th>
+                <th rowspan="2">Fecha</th>
+                <th rowspan="2">Número de identificación</th>
+                <th rowspan="2">NOMBRES Y DESCRIPCIÓN DE LOS BIENES</th>
+                <th rowspan="2">Incorporaciones Bs.</th>
+                <th rowspan="2">Desincorporaciones Bs.</th>
+            </tr>
+            <tr>
+                <th>Grupo</th>
+                <th>Sub-Grupo</th>
+                <th>Sección</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mov in data.movimientos_directos %}
+            <tr class="{% if mov.id_tipos_de_evento.nombre in 'DESINCORPORACION,APROBACION_DESINCORPORACION' %}desincorporacion-row{% else %}incorporacion-row{% endif %}">
+                <td class="text-center">{{ mov.bien_id.id_grupo.codigo }}</td>
+                <td class="text-center">{{ mov.bien_id.id_subgrupo.codigo }}</td>
+                <td class="text-center">{{ mov.bien_id.id_seccion_subgrupo.codigo|default:"-" }}</td>
+                <td class="text-center">{{ mov.bien_id.id_concepto_de_movimiento.codigo|default:"-" }}</td>
+                <td class="text-center">{{ mov.fecha_evento|date:"d/m/Y" }}</td>
+                <td>{{ mov.bien_id.numero_de_identificacion|default:"S/N" }}</td>
+                <td>
+                    {{ mov.bien_id.nombre }}
+                    {% if mov.bien_id.observacion %} - {{ mov.bien_id.observacion }}{% endif %}
+                    {% if mov.descripcion %} - {{ mov.descripcion }}{% endif %}
+                </td>
+                <td class="valor-column">
+                    {% if mov.id_tipos_de_evento.nombre in 'INCORPORACION,ASIGNACION' %}
+                        Bs. {{ mov.bien_id.incorporacion }}
+                    {% else %}
+                        Bs. 0,00
+                    {% endif %}
+                </td>
+                <td class="valor-column">
+                    {% if mov.id_tipos_de_evento.nombre in 'DESINCORPORACION,APROBACION_DESINCORPORACION' %}
+                        Bs. {{ mov.bien_id.desincorporacion|default:mov.bien_id.incorporacion }}
+                    {% else %}
+                        Bs. 0,00
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            <tr class="subtotal-row">
+                <td colspan="7" class="text-right">Subtotal Unidad:</td>
+                <td class="valor-column">Bs. {{ data.total_incorporaciones }}</td>
+                <td class="valor-column">Bs. {{ data.total_desincorporaciones }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% for dept, dept_data in data.departamentos.items %}
+        <div class="location-title" style="margin-top: 20px;">
+            DEPARTAMENTO: {{ dept_data.nombre }}
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="3">Clasificación (código)</th>
+                    <th rowspan="2">Concepto de movimiento</th>
+                    <th rowspan="2">Fecha</th>
+                    <th rowspan="2">Número de identificación</th>
+                    <th rowspan="2">NOMBRES Y DESCRIPCIÓN DE LOS BIENES</th>
+                    <th rowspan="2">Incorporaciones Bs.</th>
+                    <th rowspan="2">Desincorporaciones Bs.</th>
+                </tr>
+                <tr>
+                    <th>Grupo</th>
+                    <th>Sub-Grupo</th>
+                    <th>Sección</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in dept_data.movimientos %}
+                <tr class="{% if mov.id_tipos_de_evento.nombre in 'DESINCORPORACION,APROBACION_DESINCORPORACION' %}desincorporacion-row{% else %}incorporacion-row{% endif %}">
+                    <td class="text-center">{{ mov.bien_id.id_grupo.codigo }}</td>
+                    <td class="text-center">{{ mov.bien_id.id_subgrupo.codigo }}</td>
+                    <td class="text-center">{{ mov.bien_id.id_seccion_subgrupo.codigo|default:"-" }}</td>
+                    <td class="text-center">{{ mov.bien_id.id_concepto_de_movimiento.codigo|default:"-" }}</td>
+                    <td class="text-center">{{ mov.fecha_evento|date:"d/m/Y" }}</td>
+                    <td>{{ mov.bien_id.numero_de_identificacion|default:"S/N" }}</td>
+                    <td>
+                        {{ mov.bien_id.nombre }}
+                        {% if mov.bien_id.observacion %} - {{ mov.bien_id.observacion }}{% endif %}
+                        {% if mov.descripcion %} - {{ mov.descripcion }}{% endif %}
+                    </td>
+                    <td class="valor-column">
+                        {% if mov.id_tipos_de_evento.nombre in 'INCORPORACION,ASIGNACION' %}
+                            Bs. {{ mov.bien_id.incorporacion }}
+                        {% else %}
+                            Bs. 0,00
+                        {% endif %}
+                    </td>
+                    <td class="valor-column">
+                        {% if mov.id_tipos_de_evento.nombre in 'DESINCORPORACION,APROBACION_DESINCORPORACION' %}
+                            Bs. {{ mov.bien_id.desincorporacion|default:mov.bien_id.incorporacion }}
+                        {% else %}
+                            Bs. 0,00
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="subtotal-row">
+                    <td colspan="7" class="text-right">Subtotal Departamento:</td>
+                    <td class="valor-column">Bs. {{ dept_data.total_incorporaciones }}</td>
+                    <td class="valor-column">Bs. {{ dept_data.total_desincorporaciones }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% endfor %}
+
+<div class="totals-section">
+    <table>
+        <tr class="subtotal-row">
+            <td colspan="7" class="text-right">TOTAL GENERAL:</td>
+            <td class="valor-column">Bs. {{ total_incorporaciones }}</td>
+            <td class="valor-column">Bs. {{ total_desincorporaciones }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="footer">
+    <div class="signature">
+        <p>ING. YAJAIRA GARCIA</p>
+        <p>JEFE DEL DEPARTAMENTO DE BIENES</p>
+        <p>SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+    </div>
+</div>

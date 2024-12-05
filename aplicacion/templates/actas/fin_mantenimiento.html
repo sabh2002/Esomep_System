@@ -1,0 +1,67 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE FINALIZACIÓN DE MANTENIMIENTO</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_actual }}, se procede a registrar la finalización del mantenimiento del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr><th>Número de Identificación</th><td>{{ bien.numero_de_identificacion }}</td></tr>
+        <tr><th>Nombre del Bien</th><td>{{ bien.nombre }}</td></tr>
+        <tr><th>Departamento de Retorno</th><td>{{ departamento_destino.nombre_departamento }}</td></tr>
+        <tr><th>Tipo de Mantenimiento</th><td>{{ detalles.tipo_mantenimiento|default:"" }}</td></tr>
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN GENERAL:</h3>
+        <p>{{ descripcion }}</p>
+
+        {% if detalles.trabajos_realizados %}
+        <h3>TRABAJOS REALIZADOS:</h3>
+        <p>{{ detalles.trabajos_realizados }}</p>
+        {% endif %}
+
+        {% if detalles.estado_final %}
+        <h3>ESTADO FINAL DEL BIEN:</h3>
+        <p>{{ detalles.estado_final }}</p>
+        {% endif %}
+
+        {% if detalles.recomendaciones %}
+        <h3>RECOMENDACIONES:</h3>
+        <p>{{ detalles.recomendaciones }}</p>
+        {% endif %}
+    </div>
+
+    <p>Se certifica que el bien ha sido revisado y reparado según los requerimientos establecidos.</p>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>ENCARGADO DE MANTENIMIENTO</p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>
+        {% if departamento_destino %}
+            {{ departamento_destino.nombre_departamento }}
+        {% elif UnidadOrganizacional_destino %}
+            {{ UnidadOrganizacional_destino.nombre }}
+        {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+{% endblock %}

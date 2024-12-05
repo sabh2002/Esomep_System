@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Asignar Rol</h2>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Usuario: {{ object.get_full_name }}</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.id_rol_del_usuario.label_tag }}
+                            {{ form.id_rol_del_usuario }}
+                            {% if form.id_rol_del_usuario.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.id_rol_del_usuario.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Actualizar Rol</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

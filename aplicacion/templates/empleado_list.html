@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .container h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 2em;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 14px;
+        color: white;
+        background-color: #3498db;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #7f8c8d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #95a5a6;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .table thead th {
+        background-color: #3498db;
+        color: #fff;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .table tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+    }
+</style>
+
+<div class="container">
+    <h1>Lista de Empleados</h1>
+    <a href="{}" class="btn btn-primary mb-3">Crear Empleado</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Cargo</th>
+                <th>Departamento</th>
+                <th>Estado</th>
+                <th>Teléfono</th>
+                <th>Fecha de Ingreso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+                <tr>
+                    <td>{{ empleado.id_empleado }}</td>
+                    <td>{{ empleado.cedula }}</td>
+                    <td>{{ empleado.nombres }}</td>
+                    <td>{{ empleado.apellidos }}</td>
+                    <td>{{ empleado.cargo.nombre }}</td>
+                    <td>{{ empleado.departamento.nombre_del_departamento }}</td>
+                    <td>{{ empleado.get_estado_display }}</td>
+                    <td>{{ empleado.telefono }}</td>
+                    <td>{{ empleado.fecha_de_ingreso }}</td>
+                    <td>
+                        <a href="{}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{}" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10">No hay empleados disponibles.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

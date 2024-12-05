@@ -1,0 +1,87 @@
+{% extends "actas/base_acta.html" %}
+{% block content %}
+<!-- Template de Traslado Temporal -->
+<div class="header">
+    <div class="logo-container">
+        <img class="logo" src="data:image/png;base64,{{ logo_portuguesa }}" alt="Logo Portuguesa">
+        <img class="logo" src="data:image/png;base64,{{ logo_esomep }}" alt="Logo ESOMEP">
+    </div>
+    <h1 class="title">ACTA DE TRASLADO TEMPORAL</h1>
+</div>
+
+<div class="content">
+    <p>En el día {{ fecha_actual }}, se procede a realizar el traslado temporal del siguiente bien mueble:</p>
+
+    <table class="property-table">
+        <tr><th>Número de Identificación</th><td>{{ bien.numero_de_identificacion }}</td></tr>
+        <tr><th>Nombre del Bien</th><td>{{ bien.nombre }}</td></tr>
+        <tr>
+            <th>Origen</th>
+            <td>
+                {% if UnidadOrganizacional_origen %}
+                    Unidad: {{ UnidadOrganizacional_origen.nombre }}
+                {% endif %}
+                {% if departamento_origen %}
+                    {% if UnidadOrganizacional_origen %}<br>{% endif %}
+                    Departamento: {{ departamento_origen.nombre_departamento }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Destino</th>
+            <td>
+                {% if UnidadOrganizacional_destino %}
+                    Unidad: {{ UnidadOrganizacional_destino.nombre }}
+                {% endif %}
+                {% if departamento_destino %}
+                    {% if UnidadOrganizacional_destino %}<br>{% endif %}
+                    Departamento: {{ departamento_destino.nombre_departamento }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr><th>Tiempo Estimado</th><td>{{ detalles.tiempo_estimado|default:"" }}</td></tr>
+    </table>
+
+    <div class="details">
+        <h3>DESCRIPCIÓN:</h3>
+        <p>{{ descripcion }}</p>
+
+        <h3>MOTIVO DEL TRASLADO:</h3>
+        <p>{{ motivo }}</p>
+    </div>
+</div>
+
+<div class="dual-signature">
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>ENTREGA<br>
+        {% if UnidadOrganizacional_origen %}
+            {{ UnidadOrganizacional_origen.nombre }}
+        {% endif %}
+        {% if departamento_origen %}
+            {% if UnidadOrganizacional_origen %}<br>{% endif %}
+            {{ departamento_origen.nombre_departamento }}
+        {% endif %}
+        </p>
+    </div>
+    <div class="signature-block">
+        <div class="signature-line"></div>
+        <p>RECIBE<br>
+        {% if UnidadOrganizacional_destino %}
+            {{ UnidadOrganizacional_destino.nombre }}
+        {% endif %}
+        {% if departamento_destino %}
+            {% if UnidadOrganizacional_destino %}<br>{% endif %}
+            {{ departamento_destino.nombre_departamento }}
+        {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="signature">
+    <div class="signature-line"></div>
+    <p>ING. YAJAIRA GARCIA<br>
+    JEFA DEL DEPARTAMENTO DE BIENES<br>
+    SEGÚN RESOLUCIÓN N° ESOMEP-008-{{ año_actual }}</p>
+</div>
+{% endblock %}

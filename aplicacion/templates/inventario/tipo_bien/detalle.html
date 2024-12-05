@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        padding: 2rem;
+        background-color: #f8f9fa;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .accordion-item {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .accordion-header {
+        margin: 0;
+    }
+
+    .accordion-button {
+        background: white;
+        border: none;
+        width: 100%;
+        padding: 1.5rem;
+        text-align: left;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: #003366;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .accordion-button::after {
+        font-family: "Font Awesome 5 Free";
+        content: "\f107";
+        font-weight: 900;
+        transition: transform 0.3s ease;
+    }
+
+    .accordion-button:not(.collapsed)::after {
+        transform: rotate(-180deg);
+    }
+
+    .accordion-body {
+        padding: 1.5rem;
+        background-color: white;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat-title {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-top: 2rem;
+        padding: 1.5rem;
+    }
+
+    .table-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .table-title {
+        font-size: 1.25rem;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .badge-stock {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge-stock-normal {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-stock-asignado {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .badge-stock-resguardado {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-stock-bajo {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-stock-desconocido {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+
+    .bien-link {
+        color: #0056b3;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .bien-link:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+
+    .btn-back {
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Nuevos estilos para íconos y DataTables */
+    .icon-toggle-btn {
+        background: #003366;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .icon-toggle-btn:hover {
+        background: #002244;
+    }
+
+    .fas {
+        font-size: 0.9rem;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem !important;
+    }
+
+    .badge-stock .fas {
+        font-size: 0.8rem;
+    }
+
+    .icon-hidden .fas:not(.essential-icon) {
+        display: none;
+    }
+
+    /* Estilos DataTables */
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #dee2e6;
+        border-radius: 50px;
+        padding: 0.4rem 1rem;
+        margin-left: 0.5rem;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.4rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5rem 1rem;
+        margin: 0 0.2rem;
+        border-radius: 4px;
+        border: none !important;
+        background: #f8f9fa !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #003366 !important;
+        color: white !important;
+        border: none !important;
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Botón toggle íconos -->
+    <button type="button" class="icon-toggle-btn" id="toggleIcons">
+        <i class="fas fa-eye essential-icon"></i> Mostrar/Ocultar Íconos
+    </button>
+
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-box-open"></i>
+            {{ tipo_bien.nombre }}
+        </h1>
+    </div>
+
+    <div class="accordion" id="acordeonTipoBien">
+        <!-- Estadísticas Generales -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#estadisticasCollapse">
+                    <i class="fas fa-chart-bar me-2"></i> Estadísticas Generales
+                </button>
+            </h2>
+            <div id="estadisticasCollapse" class="accordion-collapse collapse show" data-bs-parent="#acordeonTipoBien">
+                <div class="accordion-body">
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-title">Total de Bienes</div>
+                            <div class="stat-value">{{ stock_actual.total }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Disponibles</div>
+                            <div class="stat-value">{{ stock_actual.disponible }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Asignados</div>
+                            <div class="stat-value">{{ stock_actual.asignados }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Resguardados</div>
+                            <div class="stat-value">{{ stock_actual.resguardados }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">En Mantenimiento</div>
+                            <div class="stat-value">{{ stock_actual.mantenimiento }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información General -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#infoGeneralCollapse">
+                    <i class="fas fa-info-circle me-2"></i> Información General
+                </button>
+            </h2>
+            <div id="infoGeneralCollapse" class="accordion-collapse collapse" data-bs-parent="#acordeonTipoBien">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="stat-title">Descripción</label>
+                                <p class="mb-0">{{ tipo_bien.descripcion }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Bienes -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">
+                <i class="fas fa-list"></i>
+                Bienes Registrados
+            </h3>
+        </div>
+        <div class="table-responsive">
+            <table id="bienesTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Numero Inv</th>
+                        <th>Nombre</th>
+                        <th>Ubicación</th>
+                        <th>Concepto</th>
+                        <th>Fecha Registro</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bien in bienes %}
+                    <tr>
+                        <td>{{ bien.numero_de_identificacion }}</td>
+                        <td>
+                            <a href="{% url 'bien_descripcion' bien_id=bien.id_bienes %}" class="bien-link">
+                                <i class="fas fa-box"></i>
+                                {{ bien.nombre }}
+                            </a>
+                        </td>
+                        <td>
+                            {% with ubicacion=bien.get_ubicacion_actual %}
+                                {% if ubicacion %}
+                                    {% if ubicacion.nombre_departamento %}
+                                        <span title="Departamento">
+                                            <i class="fas fa-building"></i>
+                                            {{ ubicacion.nombre_departamento }}
+                                        </span>
+                                    {% else %}
+                                        <span title="Unidad Organizacional">
+                                            <i class="fas fa-sitemap"></i>
+                                            {{ ubicacion.nombre }}
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">
+                                        <i class="fas fa-times"></i>
+                                        No asignado
+                                    </span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ bien.id_concepto_de_movimiento.codigo|default:"No especificado" }}</td>
+                        <td>{{ bien.fecha_de_registro|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if bien.estado_calculado == 'disponible' %}
+                                <span class="badge-stock badge-stock-normal">
+                                    <i class="fas fa-check-circle"></i> Disponible
+                                </span>
+                            {% elif bien.estado_calculado == 'asignado' %}
+                                <span class="badge-stock badge-stock-asignado">
+                                    <i class="fas fa-user-check"></i> Asignado
+                                </span>
+                            {% elif bien.estado_calculado == 'resguardado' %}
+                                <span class="badge-stock badge-stock-resguardado">
+                                    <i class="fas fa-shield-alt"></i> Enajenación
+                                </span>
+                            {% elif bien.estado_calculado == 'mantenimiento' %}
+                                <span class="badge-stock badge-stock-mantenimiento">
+                                    <i class="fas fa-tools"></i> Mantenimiento
+                                </span>
+                            {% elif bien.estado_calculado == 'desincorporado' %}
+                                <span class="badge-stock badge-stock-bajo">
+                                    <i class="fas fa-times-circle"></i> Desincorporado
+                                </span>
+                            {% elif bien.estado_calculado == 'traslado_temporal' %}
+                                <span class="badge-stock badge-stock-traslado">
+                                    <i class="fas fa-exchange-alt"></i> Traslado Temporal
+                                </span>
+                            {% else %}
+                                <span class="badge-stock badge-stock-desconocido">
+                                    <i class="fas fa-question-circle"></i> Desconocido
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a href="{% url 'inventario_por_tipo' %}" class="btn btn-primary btn-back">
+            <i class="fas fa-arrow-left"></i> Volver al Inventario
+        </a>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+{% endblock %}
+{% endblock %}
